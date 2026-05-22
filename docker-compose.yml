@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_tasks_db
+    ports:
+      - "5432:5432" # Твій локальний порт 5433 мапиться на стандартний 5432 всередині контейнера

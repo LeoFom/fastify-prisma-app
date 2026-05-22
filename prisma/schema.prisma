@@ -1,0 +1,262 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+ provider = "prisma-client-js"
+ output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  Processing
+  Completed
+  Cancelled
+}
+
+enum ProductCategory {
+  Coffee
+  Equipment
+  Merchandise
+}
+
+enum RoastType {
+  Light
+  Medium
+  Dark
+}
+
+enum ActivityEventType {
+  LOGIN
+  LOGOUT
+  ORDER_CREATED
+  PRODUCT_VIEWED
+  CART_UPDATED
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  sessions            Session[]
+  tasks               Task[]
+  profile             Profile?
+  orders              Order[]
+  cartItems           CartItem[]
+  membershipPass      MembershipPass?
+  newsletterSubscribe NewsletterSubscriber?
+  activityEvents      ActivityEvent[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  title     String
+  completed Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Profile {
+  userId String @id @db.Uuid
+
+  firstName String?
+  lastName  String?
+  phone     String?
+  photoUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// model UserProfile {
+//   userId    String   @id @db.Uuid
+//   firstName String?
+//   lastName  String?
+//   email     String?
+//   phone     String?
+//   photoUrl  String?
+//
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//
+//   @@map("user_profiles")
+// }
+
+model Product {
+  id   String @id @default(uuid()) @db.Uuid
+  slug String @unique
+  name String
+
+  description String?
+  imageUrl    String?
+
+  category ProductCategory
+  roast    RoastType?
+
+  price                   Decimal @db.Decimal(10, 2)
+  currency                String  @default("USD")
+  memberDiscountPercent   Decimal @default(0.00) @db.Decimal(5, 2)
+  isActive                Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model CartItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId    String @db.Uuid
+  productId String @db.Uuid
+
+  quantity      Int     @default(1)
+  priceAtAdding Decimal @db.Decimal(10, 2)
+  currency      String  @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @db.Uuid
+
+  orderNumber String      @unique
+  status      OrderStatus @default(Processing)
+
+  totalAmount Decimal @db.Decimal(10, 2)
+  currency    String  @default("USD")
+
+  placedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  orderId   String  @db.Uuid
+  productId String? @db.Uuid
+
+  productName String
+  unitPrice  Decimal @db.Decimal(10, 2)
+  quantity   Int
+
+  createdAt DateTime @default(now())
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model MembershipPass {
+  userId String @id @db.Uuid
+
+  passCode String @unique
+
+  stampsEarned Int @default(0)
+  stampsGoal   Int @default(10)
+
+  memberDiscountPercent Decimal @default(10) @db.Decimal(5, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("membership_passes")
+}
+
+model NewsletterSubscriber {
+  id String @id @default(uuid()) @db.Uuid
+
+  email  String  @unique
+  userId String? @unique @db.Uuid
+
+  subscribedAt   DateTime  @default(now())
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+
+  source String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_subscribers")
+}
+
+model ActivityEvent {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @db.Uuid
+
+  eventType ActivityEventType
+
+  targetText String?
+  targetId   String? @db.Uuid
+
+  metadata Json @default("{}")
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("activity_events")
+}
