@@ -37,6 +37,7 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
+      signed: true,
     })
 
     reply.setCookie(
@@ -46,7 +47,8 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        path: '/'
+        path: '/',
+        signed: true,
       }
     )
 
@@ -82,6 +84,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        signed: true,
         path: '/'
       }
     )
@@ -94,6 +97,7 @@ export class AuthController {
         secure:
           process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        signed: true,
         path: '/'
       }
     )
