@@ -5,9 +5,11 @@ import { taskRoutes } from './modules/tasks/task.routes'
 import {authRoutes} from "./modules/auth/auth.routes";
 import 'dotenv/config';
 import {profileRoutes} from "./modules/profile/profile.routes";
+import {productRoutes} from "./modules/product/product.routes";
 
 export const buildApp = () => {
   const secret = process.env.JWT_ACCESS_SECRET
+  if (!secret) throw new Error("JWT_ACCESS_SECRET is missing");
 
   const app = Fastify({
     logger: {
@@ -26,8 +28,17 @@ export const buildApp = () => {
 
   app.register(fastifyCookie, {
     secret: secret,
-    parseOptions: {}
+    hook: 'onRequest',
+    // parseOptions: {}
   });
+
+  app.register(fastifyJwt, {
+    secret: secret,
+    cookie: {
+      cookieName: 'accessToken',
+      signed: true,
+    },
+  })
 
   app.register(taskRoutes, {
     prefix: '/tasks'
@@ -41,9 +52,8 @@ export const buildApp = () => {
     prefix: '/profile',
   })
 
-  app.register(fastifyJwt, {
-    secret: secret!,
-    cookie: { cookieName: 'accessToken', },
+  app.register(productRoutes, {
+    prefix: '/products',
   })
 
   return app
