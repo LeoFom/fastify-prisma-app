@@ -6,7 +6,9 @@ export class ProductRepository {
 
   // Посмотреть поле slug для data (CreateInput)
   async create(data: CreateInput & { slug: string }) {
-    return this.prisma.product.create({ ...data });
+    return this.prisma.product.create({
+      data
+    });
   }
 
   async findMany() {
