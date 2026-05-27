@@ -15,8 +15,14 @@ export class ProductService {
   }
 
   async create(data: CreateInput) {
-    const slug = data.name.toLowerCase().replace(/\s+/g, '-');
-    return this.repository.create({ ...data, slug });
+    const slug = data.name
+      .toLowerCase()
+      .replace(/\s+/g, '-');
+
+    return this.repository.create({
+      ...data,
+      slug,
+    });
   }
 
   async update(id: string, data: UpdateInput) {
