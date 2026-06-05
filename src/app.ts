@@ -9,7 +9,10 @@ import {productRoutes} from "./modules/product/product.routes";
 
 export const buildApp = () => {
   const secret = process.env.JWT_ACCESS_SECRET
+  const secretCookie = process.env.COOKIE_SECRET
+
   if (!secret) throw new Error("JWT_ACCESS_SECRET is missing");
+  if (!secretCookie) throw new Error("COOKIE_SECRET is missing");
 
   const app = Fastify({
     logger: {
@@ -27,16 +30,14 @@ export const buildApp = () => {
   })
 
   app.register(fastifyCookie, {
-    secret: secret,
-    hook: 'onRequest',
-    // parseOptions: {}
+    secret: secretCookie,
   });
 
   app.register(fastifyJwt, {
     secret: secret,
     cookie: {
       cookieName: 'accessToken',
-      signed: true,
+      signed: false,
     },
   })
 
