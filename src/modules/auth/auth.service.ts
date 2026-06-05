@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken'
 import {AuthRepository} from "./auth.repository";
 import {comparePasswords, hashPassword} from "./auth.utils";
-import {LoginInput, RefreshTokenInput, RegisterInput} from "./auth.types";
+import {LoginInput, RegisterInput} from "./auth.types";
 import 'dotenv/config';
 import {ProfileRepository} from "../profile/profile.repository";
+import {hashToken} from "../../utils/hash-token";
 
 export class AuthService {
   private repository = new AuthRepository()
@@ -37,7 +38,11 @@ export class AuthService {
   }
 
   async login(data: LoginInput) {
-    const user = await this.repository.findByEmail(data.email)
+
+    const user =
+      await this.repository.findByEmail(
+        data.email
+      )
 
     if (!user) {
       throw new Error('Invalid credentials')
@@ -56,9 +61,10 @@ export class AuthService {
     const accessToken =
       jwt.sign(
         {
-          userId: user.id
+          userId: user.id,
+          email: user.email,
         },
-        process.env.JWT_ACCESS_SECRET || '',
+        process.env.JWT_ACCESS_SECRET!,
         {
           expiresIn: '15m'
         }
@@ -67,30 +73,41 @@ export class AuthService {
     const refreshToken =
       jwt.sign(
         {
-          userId: user.id
+          userId: user.id,
         },
-        process.env.JWT_REFRESH_SECRET || '',
+        process.env.JWT_REFRESH_SECRET!,
         {
           expiresIn: '7d'
         }
       )
 
+    const hashedRefreshToken =
+      hashToken(refreshToken)
+
     await this.repository.createSession({
       userId: user.id,
-      refreshToken,
+      refreshToken: hashedRefreshToken,
       expiresAt:
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        new Date(
+          Date.now() +
+          7 * 24 * 60 * 60 * 1000
+        )
     })
 
     return {
       accessToken,
-      refreshToken
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+      }
     }
   }
 
-  async refresh(refreshToken: RefreshTokenInput) {
+  async refresh(refreshToken: string) {
+
     if (!refreshToken) {
-      throw new Error('Invalid Refresh token')
+      throw new Error('Invalid refresh token')
     }
 
     let payload: {
@@ -98,31 +115,37 @@ export class AuthService {
     }
 
     try {
+
       payload = jwt.verify(
         refreshToken,
-        process.env.JWT_REFRESH_SECRET || ''
+        process.env.JWT_REFRESH_SECRET!
       ) as {
         userId: string
       }
+
     } catch {
+
       throw new Error('Invalid refresh token')
     }
 
+    const hashedRefreshToken =
+      hashToken(refreshToken)
+
     const session =
       await this.repository.findSessionByToken(
-        refreshToken
+        hashedRefreshToken
       )
 
-    if(!session){
+    if (!session) {
       throw new Error('Session expired')
     }
 
     const accessToken =
       jwt.sign(
         {
-          userId: payload.userId
+          userId: payload.userId,
         },
-        process.env.JWT_ACCESS_SECRET || '',
+        process.env.JWT_ACCESS_SECRET!,
         {
           expiresIn: '15m'
         }
@@ -131,21 +154,25 @@ export class AuthService {
     const newRefreshToken =
       jwt.sign(
         {
-          userId: payload.userId
+          userId: payload.userId,
         },
-        process.env.JWT_REFRESH_SECRET || '',
+        process.env.JWT_REFRESH_SECRET!,
         {
           expiresIn: '7d'
         }
       )
 
+    const hashedNewRefreshToken =
+      hashToken(newRefreshToken)
+
     await this.repository.deleteSessionByToken(
-      refreshToken
+      hashedRefreshToken
     )
 
     await this.repository.createSession({
       userId: payload.userId,
-      refreshToken: newRefreshToken,
+      refreshToken:
+      hashedNewRefreshToken,
       expiresAt:
         new Date(
           Date.now() +
@@ -161,8 +188,11 @@ export class AuthService {
 
   async logout(refreshToken: string) {
 
+    const hashedRefreshToken =
+      hashToken(refreshToken)
+
     await this.repository.deleteSessionByToken(
-      refreshToken
+      hashedRefreshToken
     )
   }
 

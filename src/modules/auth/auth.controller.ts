@@ -24,87 +24,52 @@ export class AuthController {
   login = async (
     request: FastifyRequest,
     reply: FastifyReply
-  )=>  {
+  ) => {
 
     const body =
       loginSchema.parse(request.body)
 
-    const tokens =
+    const result =
       await this.authService.login(body)
-
-    reply.setCookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      signed: true,
-    })
-
-    reply.setCookie(
-      'refreshToken',
-      tokens.refreshToken,
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        signed: true,
-      }
-    )
-
-    return reply.send({
-      accessToken: tokens.accessToken
-    })
-  }
-
-
-  refresh = async (
-    request: FastifyRequest,
-    reply: FastifyReply
-  )=>  {
-
-    request.log.info(request.headers);
-
-    const refreshToken = request.cookies.refreshToken
-
-    if(!refreshToken) {
-      return reply.status(401).send({
-        message: 'Unauthorized'
-      })
-    }
-
-    const tokens = await this.authService.refresh(
-      refreshToken
-    )
 
     reply.setCookie(
       'accessToken',
-      tokens.accessToken,
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        signed: true,
-        path: '/'
-      }
-    )
-
-    reply.setCookie(
-      'refreshToken',
-      tokens.refreshToken,
+      result.accessToken,
       {
         httpOnly: true,
         secure:
           process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        signed: true,
-        path: '/'
+        sameSite: 'lax',
+        path: '/',
+      }
+    )
+
+    reply.setCookie(
+      'refreshToken',
+      result.refreshToken,
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
       }
     )
 
     return reply.send({
       success: true,
-      // accessToken: tokens.accessToken
+      user: result.user,
+    })
+  }
+
+  me = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) => {
+
+    return reply.send({
+      id: request.user.userId,
+      email: request.user.email,
     })
   }
 
@@ -112,14 +77,22 @@ export class AuthController {
     request: FastifyRequest,
     reply: FastifyReply
   ) => {
+
     const refreshToken =
       request.cookies.refreshToken
 
-    if(refreshToken){
+    if (refreshToken) {
       await this.authService.logout(
         refreshToken
       )
     }
+
+    reply.clearCookie(
+      'accessToken',
+      {
+        path: '/'
+      }
+    )
 
     reply.clearCookie(
       'refreshToken',
@@ -128,7 +101,7 @@ export class AuthController {
       }
     )
 
-    return reply.status(200).send({
+    return reply.send({
       success: true
     })
   }

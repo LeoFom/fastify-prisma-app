@@ -13,10 +13,7 @@ export async function authRoutes(
     {
       preHandler: authMiddleware
     },
-    async (request, reply) => {
-
-      return reply.send(request.user)
-    }
+    authController.me
   )
 
   app.post('/register', authController.register)
@@ -25,6 +22,6 @@ export async function authRoutes(
 
   app.post('/logout', authController.logout)
 
-  app.post('/refresh', authController.refresh)
+  // app.post('/refresh', authController.refresh)
 
 }
