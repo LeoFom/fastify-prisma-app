@@ -11,7 +11,7 @@ export class TaskController {
     reply: FastifyReply
   ) {
 
-    const userId = request.user.id
+    const userId = request.user.userId
 
     const body =
       createTaskSchema.parse(request.body)
@@ -29,7 +29,7 @@ export class TaskController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const userId = request.user.id
+    const userId = request.user.userId
 
     const tasks =
       await taskService.getTasks(userId)
