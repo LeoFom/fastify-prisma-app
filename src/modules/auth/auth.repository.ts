@@ -44,7 +44,7 @@ export class AuthRepository {
   async deleteSessionByToken(
     refreshToken: string
   ) {
-    return prisma.session.delete({
+    return prisma.session.deleteMany({
       where: {
         refreshToken
       }
