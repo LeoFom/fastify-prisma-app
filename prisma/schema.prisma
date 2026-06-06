@@ -30,6 +30,32 @@ enum RoastType {
   Dark
 }
 
+enum CoffeeType {
+  Beans
+  Ground
+  Drip
+  Capsules
+}
+
+enum ProcessingMethod {
+  Washed
+  Natural
+  Honey
+  Anaerobic
+  SemiWashed
+}
+
+enum BrewingMethod {
+  Espresso
+  Filter
+  V60
+  Aeropress
+  Chemex
+  Moka
+  Turkish
+  FrenchPress
+}
+
 enum ActivityEventType {
   LOGIN
   LOGOUT
@@ -104,27 +130,119 @@ model Profile {
   @@map("profiles")
 }
 
+model FlavorNote {
+  id String @id @default(uuid()) @db.Uuid
+
+  name String @unique
+
+  coffees CoffeeDetails[]
+
+  createdAt DateTime @default(now())
+
+  @@map("flavor_notes")
+}
+
+model Brand {
+  id String @id @default(uuid()) @db.Uuid
+
+  name String @unique
+
+  logoUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model CoffeeDetails {
+  id String @id @default(uuid()) @db.Uuid
+
+  productId String  @unique @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  coffeeType CoffeeType
+
+  roast RoastType?
+
+  originCountry String?
+  region        String?
+
+  farm              String?
+  processingStation String?
+
+  altitudeMin Int?
+  altitudeMax Int?
+
+  variety String?
+
+  processingMethod ProcessingMethod?
+
+  scaScore Decimal? @db.Decimal(4,2)
+
+  arabicaPercent Int?
+  robustaPercent  Int?
+
+  acidity    Int?
+  sweetness  Int?
+  bitterness Int?
+  body       Int?
+
+  caffeineLevel Int?
+
+  weightGrams Int?
+
+  roastDate DateTime?
+
+  flavorNotes FlavorNote[]
+
+  brewingMethods BrewingMethod[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([originCountry])
+  @@index([region])
+  @@index([roast])
+  @@index([processingMethod])
+  @@index([weightGrams])
+
+  @@map("coffee_details")
+}
+
 model Product {
   id   String @id @default(uuid()) @db.Uuid
   slug String @unique
+
   name String
 
   description String?
   imageUrl    String?
 
   category ProductCategory
-  roast    RoastType?
 
-  price                   Decimal @db.Decimal(10, 2)
-  currency                String  @default("USD")
-  memberDiscountPercent   Decimal @default(0.00) @db.Decimal(5, 2)
-  isActive                Boolean @default(true)
+  price Decimal @db.Decimal(10, 2)
+
+  currency              String  @default("USD")
+  memberDiscountPercent Decimal @default(0.00) @db.Decimal(5, 2)
+
+  isActive Boolean @default(true)
+
+  brandId String? @db.Uuid
+  brand   Brand?  @relation(fields: [brandId], references: [id])
+
+  coffeeDetails CoffeeDetails?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   cartItems  CartItem[]
   orderItems OrderItem[]
+
+  @@index([category])
+  @@index([brandId])
 
   @@map("products")
 }
