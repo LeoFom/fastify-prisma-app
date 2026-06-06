@@ -1,5 +1,7 @@
 import { ProductRepository } from './product.repository';
 import { CreateInput, UpdateInput } from './product.types';
+import { transliterate } from 'transliteration';
+import slugify from 'slugify';
 
 export class ProductService {
   constructor(private readonly repository: ProductRepository) {}
@@ -15,9 +17,13 @@ export class ProductService {
   }
 
   async create(data: CreateInput) {
-    const slug = data.name
-      .toLowerCase()
-      .replace(/\s+/g, '-');
+    const slug = slugify(
+      transliterate(data.name),
+      {
+        lower: true,
+        strict: true,
+      }
+    );
 
     return this.repository.create({
       ...data,
