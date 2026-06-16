@@ -56,6 +56,18 @@ export class AuthController {
       }
     )
 
+    reply.setCookie(
+      'userId',
+      result.user.id,
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      }
+    )
+
     return reply.send({
       success: true,
       user: result.user,
