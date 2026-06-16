@@ -6,6 +6,7 @@ import {authRoutes} from "./modules/auth/auth.routes";
 import 'dotenv/config';
 import {profileRoutes} from "./modules/profile/profile.routes";
 import {productRoutes} from "./modules/product/product.routes";
+import {cartRoutes} from "./modules/cart/cart.routes";
 
 export const buildApp = () => {
   const secret = process.env.JWT_ACCESS_SECRET
@@ -55,6 +56,10 @@ export const buildApp = () => {
 
   app.register(productRoutes, {
     prefix: '/products',
+  })
+
+  app.register(cartRoutes, {
+    prefix: '/cart',
   })
 
   return app
