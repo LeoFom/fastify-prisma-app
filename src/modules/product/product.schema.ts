@@ -6,7 +6,7 @@ export const createProductsSchema = z.object({
   description: z.string().min(10).optional(),
   imageUrl: z.string().optional(),
   category: z.nativeEnum(ProductCategory),
-  roast: z.nativeEnum(RoastType).optional(),
+  // roast: z.nativeEnum(RoastType).optional(),
   price: z.number().positive(),
 })
 
