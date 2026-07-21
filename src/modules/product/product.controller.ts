@@ -14,6 +14,13 @@ export class ProductController {
     return this.service.getById(req.params.id);
   };
 
+  getBySlug = async (
+    req: FastifyRequest<{ Params: { slug: string } }>,
+    res: FastifyReply,
+  ) => {
+    return this.service.getBySlug(req.params.slug);
+  };
+
   create = async (req: FastifyRequest, res: FastifyReply) => {
     try {
       const data = createProductsSchema.parse(req.body);
