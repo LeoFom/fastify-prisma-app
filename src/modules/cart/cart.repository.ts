@@ -15,6 +15,9 @@ export class CartRepository {
       where: {
         userId,
       },
+      include: {
+        product: true,
+      },
     });
   }
 
