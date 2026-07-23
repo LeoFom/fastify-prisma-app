@@ -7,6 +7,7 @@ import 'dotenv/config';
 import {profileRoutes} from "./modules/profile/profile.routes";
 import {productRoutes} from "./modules/product/product.routes";
 import {cartRoutes} from "./modules/cart/cart.routes";
+import {novaPoshtaRouter} from "./modules/nova-poshta/nova-poshta.routes";
 
 export const buildApp = () => {
   const secret = process.env.JWT_ACCESS_SECRET
@@ -60,6 +61,10 @@ export const buildApp = () => {
 
   app.register(cartRoutes, {
     prefix: '/cart',
+  })
+
+  app.register(novaPoshtaRouter, {
+    prefix: '/nova-poshta',
   })
 
   return app
