@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { CreateCartInput, UpdateCartInput } from './cart.types';
 
 export class CartRepository {

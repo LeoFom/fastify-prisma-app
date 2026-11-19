@@ -20,6 +20,9 @@ import { prisma } from "../../config/prisma";
 export async function novaPoshtaRouter(
   fastify: FastifyInstance,
 ) {
+  fastify.addHook('preHandler', async (_request, reply) => {
+    if (!process.env.NOVA_POSHTA_API_KEY) return reply.code(503).send({ message: 'Nova Poshta is not configured' });
+  });
   const repository =
     new NovaPoshtaRepository(
       process.env.NOVA_POSHTA_API_KEY!,

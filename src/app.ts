@@ -8,6 +8,9 @@ import {productRoutes} from "./modules/product/product.routes";
 import {cartRoutes} from "./modules/cart/cart.routes";
 import {novaPoshtaRouter} from "./modules/nova-poshta/nova-poshta.routes";
 import {orderRoutes} from "./modules/order/order.routes";
+import { prisma } from './config/prisma';
+import { timingSafeEqual } from 'node:crypto';
+import { ZodError } from 'zod';
 
 export const buildApp = () => {
   const secret = process.env.JWT_ACCESS_SECRET
@@ -20,20 +23,43 @@ export const buildApp = () => {
   if (!refreshSecret) throw new Error("JWT_REFRESH_SECRET is missing");
   if (!databaseUrl) throw new Error("DATABASE_URL is missing");
 
+  const internalKey = process.env.INTERNAL_API_KEY;
+  if (process.env.NODE_ENV === 'production' && !internalKey) throw new Error('INTERNAL_API_KEY is missing');
+  for (const value of [secret, secretCookie, refreshSecret]) {
+    if (value.length < 32) throw new Error('Auth secrets must be at least 32 characters');
+  }
   const app = Fastify({
-    logger: {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname', // Скрываем лишнее
-          // Настраиваем формат сообщения
-          messageFormat: '{req.method} {req.url} {res.statusCode}',
-          colorize: true
-        }
-      }
+    bodyLimit: 65536,
+    logger: process.env.NODE_ENV === 'test' ? false : {
+      level: 'info',
+      redact: ['req.headers.cookie', 'req.headers.authorization', 'req.headers["x-coffeo-api-key"]', 'res.headers["set-cookie"]'],
+    },
+  });
+  app.addHook('onRequest', async (request, reply) => {
+    const path = request.url.split('?')[0];
+    if (path === '/health/live' || path === '/health/ready') return;
+    reply.header('cache-control', 'no-store');
+    if (!internalKey) return;
+    const supplied = request.headers['x-coffeo-api-key'];
+    if (typeof supplied !== 'string' || Buffer.byteLength(supplied) !== Buffer.byteLength(internalKey) ||
+      !timingSafeEqual(Buffer.from(supplied), Buffer.from(internalKey))) {
+      return reply.code(401).send({ message: 'Unauthorized' });
     }
-  })
+  });
+  app.get('/health/live', async () => ({ status: 'ok' }));
+  app.get('/health/ready', async (_request, reply) => {
+    try { await prisma.$queryRaw`SELECT 1`; return { status: 'ready' }; }
+    catch { return reply.code(503).send({ status: 'unavailable' }); }
+  });
+  app.setErrorHandler((error, request, reply) => {
+    if (error instanceof ZodError) return reply.code(400).send({ message: 'Validation failed' });
+    const failure = error instanceof Error ? error : new Error('Request failed');
+    const code = 'statusCode' in failure ? failure.statusCode : undefined;
+    const status = typeof code === 'number' && code >= 400 && code < 500 ? code :
+      failure.message === 'Invalid credentials' ? 401 : failure.message === 'User already exists' ? 409 : 500;
+    if (status === 500) request.log.error({ code: 'REQUEST_FAILED', requestId: request.id });
+    return reply.code(status).send({ message: status === 500 ? 'Internal server error' : failure.message });
+  });
 
   app.register(fastifyCookie, {
     secret: secretCookie,

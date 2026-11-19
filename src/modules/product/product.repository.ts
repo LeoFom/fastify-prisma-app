@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient} from '../../generated/prisma/client';
+import { Prisma, PrismaClient} from '@prisma/client';
 import {DefaultArgs} from "../../generated/prisma/runtime/client";
 import {CreateInput, UpdateInput} from './product.types';
 

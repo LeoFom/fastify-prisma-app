@@ -1,0 +1,36 @@
+name: Verify API
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://coffeo:ci-only@localhost:5432/coffeo
+      DIRECT_URL: postgresql://coffeo:ci-only@localhost:5432/coffeo
+      JWT_ACCESS_SECRET: ci-only-access-secret-000000000000000000000
+      JWT_REFRESH_SECRET: ci-only-refresh-secret-00000000000000000000
+      COOKIE_SECRET: ci-only-cookie-secret-000000000000000000000
+      INTERNAL_API_KEY: ci-only-internal-key-0000000000000000000000
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: coffeo
+          POSTGRES_USER: coffeo
+          POSTGRES_PASSWORD: ci-only
+        ports: ['5432:5432']
+        options: --health-cmd 'pg_isready -U coffeo' --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npm run build
+      - run: npm run db:validate
+      - run: npm run db:deploy
+      - run: npm test

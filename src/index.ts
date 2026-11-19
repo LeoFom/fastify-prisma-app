@@ -14,14 +14,21 @@ const start = async () => {
     await promoteConfiguredAdmin()
 
     await app.listen({
-      port: port
+      port: port,
+      host: '0.0.0.0',
     })
 
-    console.log('Server started')
+    for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+      process.once(signal, async () => {
+        await app.close()
+        await prisma.$disconnect()
+        process.exit(0)
+      })
+    }
 
   } catch (error) {
 
-    app.log.error(error)
+    app.log.error({ code: 'STARTUP_FAILED' }, 'Check database and environment configuration')
 
     process.exit(1)
   }

@@ -1,4 +1,4 @@
-import { PaymentMethod } from '../../generated/prisma/client';
+import { PaymentMethod } from '@prisma/client';
 import { CreateOrderInput } from './order.types';
 
 export function roundMoney(value: number): number {

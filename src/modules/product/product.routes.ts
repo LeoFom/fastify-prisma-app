@@ -19,6 +19,6 @@ export async function productRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', controller.getById);
   fastify.get('/slug/:slug', controller.getBySlug);
   fastify.post('/', requireAdmin, controller.create);
-  fastify.patch('/:id', requireAdmin, controller.update);
-  fastify.delete('/:id', requireAdmin, controller.delete);
+  fastify.patch<{ Params: { id: string } }>('/:id', requireAdmin, controller.update);
+  fastify.delete<{ Params: { id: string } }>('/:id', requireAdmin, controller.delete);
 }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ProductCategory, RoastType } from '../../../src/generated/prisma/client';
+import { ProductCategory, RoastType } from '@prisma/client';
 
 export const createProductsSchema = z.object({
   name: z.string().min(2),

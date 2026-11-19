@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: coffeo-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: dev
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run db:deploy && npm start
+    healthCheckPath: /health/ready
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: INTERNAL_API_KEY
+        sync: false
+      - key: NOVA_POSHTA_API_KEY
+        sync: false
