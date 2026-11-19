@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient} from '../../generated/prisma/client';
+import {getSettlementsSchema} from "./nova-poshta.schema";
 
 export class NovaPoshtaRepository {
   constructor(
@@ -35,11 +36,12 @@ export class NovaPoshtaRepository {
 
   async findCities(query: string) {
     return this.request(
-      'Address',
+      'AddressGeneral',
       'searchSettlements',
       {
         CityName: query,
         Limit: 20,
+        Page: 1,
       },
     );
   }
@@ -53,7 +55,7 @@ export class NovaPoshtaRepository {
       'getWarehouses',
       {
         CityRef: cityRef,
-        FindByString: query,
+        // FindByString: query,
       },
     );
   }

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { NovaPoshtaService } from './nova-poshta.service';
-import { getCitiesSchema, getWarehousesSchema } from './nova-poshta.schema';
+import {getCitiesSchema, getSettlementsSchema, getWarehousesSchema} from './nova-poshta.schema';
 import {z, ZodError} from "zod";
 import {GetCitiesQuery, GetWarehousesQuery} from "./nova-poshta.types";
 
@@ -16,6 +16,17 @@ export class NovaPoshtaController {
     res: FastifyReply,
   ) => {
     const query = getCitiesSchema.parse(req.query);
+
+    return this.service.getCities(query.query);
+  };
+
+  getSettlements = async (
+    req: FastifyRequest<{
+      Querystring: GetCitiesQuery;
+    }>,
+    res: FastifyReply,
+  ) => {
+    const query = getSettlementsSchema.parse(req.query);
 
     return this.service.getCities(query.query);
   };

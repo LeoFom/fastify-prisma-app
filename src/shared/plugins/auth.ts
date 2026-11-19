@@ -1,6 +1,8 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import jwt from 'jsonwebtoken'
 import {AuthRepository} from "../../modules/auth/auth.repository";
+import {hashToken} from "../../utils/hash-token";
+import {clearAuthCookies} from "../../modules/auth/auth-cookies";
 
 const repository = new AuthRepository()
 
@@ -30,39 +32,41 @@ export async function authMiddleware(
 
     try {
 
-      // REFRESH TOKEN
       const payload =
         jwt.verify(
           refreshToken,
           process.env.JWT_REFRESH_SECRET!
         ) as {
           userId: string
-          email: string
         }
 
-      const dbSession = await repository.findSessionByToken(refreshToken);
+      const dbSession = await repository.findSessionByToken(
+        hashToken(refreshToken)
+      );
 
       if (!dbSession) {
-        // Если сессии в базе нет — значит токен отозван (был логаут).
-        // Принудительно чистим куки "зомби" и выплевываем 401.
-        reply.clearCookie('accessToken', { path: '/' });
-        reply.clearCookie('refreshToken', { path: '/' });
+        clearAuthCookies(reply)
         return reply.status(401).send({ message: 'Session expired or logged out' });
       }
 
-      // NEW ACCESS TOKEN
+      const user = await repository.findById(payload.userId)
+
+      if (!user) {
+        clearAuthCookies(reply)
+        return reply.status(401).send({ message: 'Unauthorized' });
+      }
+
       const newAccessToken =
         request.server.jwt.sign(
           {
-            id: payload.userId,
-            email: payload.email,
+            userId: user.id,
+            email: user.email,
           },
           {
             expiresIn: '15m'
           }
         )
 
-      // NEW COOKIE
       reply.setCookie(
         'accessToken',
         newAccessToken,
@@ -75,13 +79,14 @@ export async function authMiddleware(
         }
       )
 
-      // IMPORTANT
-      request.user = payload
+      request.user = {
+        userId: user.id,
+        email: user.email,
+      }
 
     } catch {
 
-      reply.clearCookie('accessToken', { path: '/' });
-      reply.clearCookie('refreshToken', { path: '/' });
+      clearAuthCookies(reply)
 
       return reply.status(401).send({
         message: 'Unauthorized'

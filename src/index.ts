@@ -1,5 +1,6 @@
 import { buildApp } from './app'
 import { prisma } from './config/prisma'
+import { promoteConfiguredAdmin } from './shared/promote-admin'
 import 'dotenv/config';
 
 const start = async () => {
@@ -10,6 +11,7 @@ const start = async () => {
   try {
 
     await prisma.$connect()
+    await promoteConfiguredAdmin()
 
     await app.listen({
       port: port

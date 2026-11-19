@@ -22,16 +22,25 @@ export async function profileRoutes(
 
   fastify.post(
     '/',
+    {
+      preHandler: [authMiddleware]
+    },
     controller.createProfile
   )
 
   fastify.patch(
     '/',
+    {
+      preHandler: [authMiddleware]
+    },
     controller.updateProfile
   )
 
   fastify.delete(
     '/',
+    {
+      preHandler: [authMiddleware]
+    },
     controller.deleteProfile
   )
 }

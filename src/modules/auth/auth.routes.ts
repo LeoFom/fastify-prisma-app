@@ -22,6 +22,6 @@ export async function authRoutes(
 
   app.post('/logout', authController.logout)
 
-  // app.post('/refresh', authController.refresh)
+  app.post('/refresh', authController.refresh)
 
 }

@@ -1,9 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { ProfileService } from './profile.service'
-import {
-  CreateProfileDto,
-  UpdateProfileDto,
-} from './profile.types'
+import { createProfileSchema, updateProfileSchema } from './profile.schema'
 
 export class ProfileController {
   constructor(
@@ -23,34 +20,32 @@ export class ProfileController {
   }
 
   createProfile = async (
-    request: FastifyRequest<{
-      Body: CreateProfileDto
-    }>,
+    request: FastifyRequest,
     reply: FastifyReply
   ) => {
     const userId = request.user.userId
+    const body = createProfileSchema.parse(request.body)
 
     const profile =
       await this.profileService.createProfile(
         userId,
-        request.body
+        body
       )
 
     return reply.code(201).send(profile)
   }
 
   updateProfile = async (
-    request: FastifyRequest<{
-      Body: UpdateProfileDto
-    }>,
+    request: FastifyRequest,
     reply: FastifyReply
   ) => {
     const userId = request.user.userId
+    const body = updateProfileSchema.parse(request.body)
 
     const profile =
       await this.profileService.updateProfile(
         userId,
-        request.body
+        body
       )
 
     return reply.send(profile)

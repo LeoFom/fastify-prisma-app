@@ -8,13 +8,25 @@ export class AuthRepository {
     })
   }
 
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: { id }
+    })
+  }
+
   async createUser(data: {
     email: string
     passwordHash: string
   }) {
 
     return prisma.user.create({
-      data
+      data: {
+        ...data,
+        role:
+          process.env.ADMIN_EMAIL?.trim() === data.email
+            ? 'Admin'
+            : 'Customer',
+      }
     })
   }
 
@@ -31,22 +43,24 @@ export class AuthRepository {
     })
   }
 
+  // Expects hashToken(rawCookie), never the raw refresh JWT.
   async findSessionByToken(
-    refreshToken: string
+    hashedRefreshToken: string
   ) {
     return prisma.session.findUnique({
       where: {
-        refreshToken
+        refreshToken: hashedRefreshToken
       }
     })
   }
 
+  // Expects hashToken(rawCookie), never the raw refresh JWT.
   async deleteSessionByToken(
-    refreshToken: string
+    hashedRefreshToken: string
   ) {
     return prisma.session.deleteMany({
       where: {
-        refreshToken
+        refreshToken: hashedRefreshToken
       }
     })
   }

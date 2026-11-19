@@ -1,6 +1,7 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {loginSchema, registerSchema} from "./auth.schema";
 import { AuthService } from './auth.service'
+import {clearAuthCookies, setAuthCookies} from './auth-cookies'
 import '@fastify/cookie';
 import 'dotenv/config';
 
@@ -18,7 +19,9 @@ export class AuthController {
     const user =
       await this.authService.register(body)
 
-    return reply.status(201).send(user)
+    const { passwordHash: _passwordHash, ...safeUser } = user
+
+    return reply.status(201).send(safeUser)
   }
 
   login = async (
@@ -32,41 +35,11 @@ export class AuthController {
     const result =
       await this.authService.login(body)
 
-    reply.setCookie(
-      'accessToken',
-      result.accessToken,
-      {
-        httpOnly: true,
-        secure:
-          process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      }
-    )
-
-    reply.setCookie(
-      'refreshToken',
-      result.refreshToken,
-      {
-        httpOnly: true,
-        secure:
-          process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      }
-    )
-
-    reply.setCookie(
-      'userId',
-      result.user.id,
-      {
-        httpOnly: true,
-        secure:
-          process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      }
-    )
+    setAuthCookies(reply, {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      userId: result.user.id,
+    })
 
     return reply.send({
       success: true,
@@ -78,11 +51,51 @@ export class AuthController {
     request: FastifyRequest,
     reply: FastifyReply
   ) => {
+    try {
+      const user = await this.authService.me(request.user.userId)
+      return reply.send(user)
+    } catch {
+      return reply.status(401).send({
+        message: 'Unauthorized',
+      })
+    }
+  }
 
-    return reply.send({
-      id: request.user.userId,
-      email: request.user.email,
-    })
+  refresh = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) => {
+
+    const refreshToken =
+      request.cookies.refreshToken
+
+    if (!refreshToken) {
+      return reply.status(401).send({
+        message: 'Unauthorized'
+      })
+    }
+
+    try {
+      const result =
+        await this.authService.refresh(refreshToken)
+
+      setAuthCookies(reply, {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        userId: result.user.id,
+      })
+
+      return reply.send({
+        success: true,
+        user: result.user,
+      })
+    } catch {
+      clearAuthCookies(reply)
+
+      return reply.status(401).send({
+        message: 'Unauthorized'
+      })
+    }
   }
 
   logout = async (
@@ -99,19 +112,7 @@ export class AuthController {
       )
     }
 
-    reply.clearCookie(
-      'accessToken',
-      {
-        path: '/'
-      }
-    )
-
-    reply.clearCookie(
-      'refreshToken',
-      {
-        path: '/'
-      }
-    )
+    clearAuthCookies(reply)
 
     return reply.send({
       success: true

@@ -37,6 +37,11 @@ export async function novaPoshtaRouter(
   );
 
   fastify.get(
+    "/settlements",
+    controller.getSettlements,
+  );
+
+  fastify.get(
     "/warehouses",
     controller.getWarehouses,
   );

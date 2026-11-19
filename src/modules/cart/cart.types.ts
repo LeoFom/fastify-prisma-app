@@ -1,8 +1,17 @@
 import {z} from "zod";
-import {createCartsSchema} from "./cart.schema";
+import {createCartsSchema, updateCartsSchema} from "./cart.schema";
 
 export type CreateCartInput =
   z.infer<typeof createCartsSchema>
 
 export type UpdateCartInput =
-  z.infer<typeof createCartsSchema>
+  z.infer<typeof updateCartsSchema>
+
+export class CartHttpError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string
+  ) {
+    super(message)
+  }
+}

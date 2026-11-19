@@ -100,6 +100,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        role: user.role,
       }
     }
   }
@@ -140,10 +141,18 @@ export class AuthService {
       throw new Error('Session expired')
     }
 
+    const user =
+      await this.repository.findById(payload.userId)
+
+    if (!user) {
+      throw new Error('Invalid refresh token')
+    }
+
     const accessToken =
       jwt.sign(
         {
-          userId: payload.userId,
+          userId: user.id,
+          email: user.email,
         },
         process.env.JWT_ACCESS_SECRET!,
         {
@@ -154,7 +163,7 @@ export class AuthService {
     const newRefreshToken =
       jwt.sign(
         {
-          userId: payload.userId,
+          userId: user.id,
         },
         process.env.JWT_REFRESH_SECRET!,
         {
@@ -170,7 +179,7 @@ export class AuthService {
     )
 
     await this.repository.createSession({
-      userId: payload.userId,
+      userId: user.id,
       refreshToken:
       hashedNewRefreshToken,
       expiresAt:
@@ -182,12 +191,30 @@ export class AuthService {
 
     return {
       accessToken,
-      refreshToken: newRefreshToken
+      refreshToken: newRefreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      }
+    }
+  }
+
+  async me(userId: string) {
+    const user = await this.repository.findById(userId)
+
+    if (!user) {
+      throw new Error('Unauthorized')
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
     }
   }
 
   async logout(refreshToken: string) {
-
     const hashedRefreshToken =
       hashToken(refreshToken)
 
@@ -195,6 +222,4 @@ export class AuthService {
       hashedRefreshToken
     )
   }
-
-
 }

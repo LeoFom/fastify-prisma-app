@@ -1,4 +1,5 @@
 import { NovaPoshtaRepository } from './nova-poshta.repository';
+import {NPCity} from "./nova-poshta.types";
 
 export class NovaPoshtaService {
   constructor(
@@ -6,10 +7,17 @@ export class NovaPoshtaService {
   ) {}
 
   async getCities(query: string) {
-    const response =
-      await this.repository.findCities(query);
+    const response = await this.repository.findCities(query);
 
-    return response.data;
+    const cities = response.data?.[0]?.Addresses ?? [];
+    console.log("(getCities) - cities: ", cities)
+
+    return cities
+    //   .map((city: NPCity) => ({
+    //   ref: city.Ref,
+    //   label: city.Present,
+    //   sublabel: city.Area,
+    // }));
   }
 
   async getWarehouses(
@@ -22,6 +30,8 @@ export class NovaPoshtaService {
         query,
       );
 
-    return response.data;
+    const data = response.data
+    console.log("getWarehouses - data",data)
+    return data;
   }
 }
