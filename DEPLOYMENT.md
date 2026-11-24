@@ -31,6 +31,8 @@ Generate secrets with a password manager or `node -e "console.log(require('node:
 
 Admin bootstrap creates a new admin only when no admin exists. It does not promote an existing registration with the same email. After the first successful login, remove the bootstrap password from the Render environment. No default admin credentials or seeded production customer/product data are provided.
 
+Public registration accepts exactly `email` and `password`, always persists `Customer`, and rejects extra fields with HTTP 400. The legacy `ADMIN_EMAIL` variable has no effect. Administrative provisioning is separate from public registration; see [the registration security decision](docs/adr/003-public-registration-role.md). Existing roles are not rewritten by this change.
+
 The old tracked `src/config/env.ts` was removed from `dev`; its historical MongoDB/email credentials must be revoked by their owner. Historical commits and the legacy `main` branch may still contain them. Removing the current file does not rotate credentials. No old credentials are used for this deployment.
 
 ## Database safety

@@ -21,11 +21,9 @@ export class AuthRepository {
 
     return prisma.user.create({
       data: {
-        ...data,
-        role:
-          process.env.ADMIN_EMAIL?.trim() === data.email
-            ? 'Admin'
-            : 'Customer',
+        email: data.email,
+        passwordHash: data.passwordHash,
+        role: 'Customer',
       }
     })
   }
