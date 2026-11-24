@@ -15,17 +15,17 @@ Both health endpoints are public and contain no credentials. Other routes requir
 
 ## Environment
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Pooled PostgreSQL URL for runtime traffic, TLS certificate verification enabled |
-| `DIRECT_URL` | Direct PostgreSQL URL for Prisma migrations |
-| `JWT_ACCESS_SECRET` | Independent random secret, at least 32 characters |
-| `JWT_REFRESH_SECRET` | A different independent random secret |
-| `COOKIE_SECRET` | A different independent random secret |
-| `INTERNAL_API_KEY` | Shared only by Render and Vercel server environments |
-| `NODE_ENV` | `production` on Render |
-| `NOVA_POSHTA_API_KEY` | Optional until Nova Poshta delivery is enabled |
-| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD` | Optional initial admin creation; password minimum 12 characters |
+| Variable                                            | Purpose                                                                         |
+| --------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                      | Pooled PostgreSQL URL for runtime traffic, TLS certificate verification enabled |
+| `DIRECT_URL`                                        | Direct PostgreSQL URL for Prisma migrations                                     |
+| `JWT_ACCESS_SECRET`                                 | Independent random secret, at least 32 characters                               |
+| `JWT_REFRESH_SECRET`                                | A different independent random secret                                           |
+| `COOKIE_SECRET`                                     | A different independent random secret                                           |
+| `INTERNAL_API_KEY`                                  | Shared only by Render and Vercel server environments                            |
+| `NODE_ENV`                                          | `production` on Render                                                          |
+| `NOVA_POSHTA_API_KEY`                               | Optional until Nova Poshta delivery is enabled                                  |
+| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD` | Optional initial admin creation; password minimum 12 characters                 |
 
 Generate secrets with a password manager or `node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"`. Do not place secrets in public `NEXT_PUBLIC_*` variables or Git. Add values directly to Render/Vercel settings.
 
@@ -33,7 +33,7 @@ Admin bootstrap creates a new admin only when no admin exists. It does not promo
 
 Public registration accepts exactly `email` and `password`, always persists `Customer`, and rejects extra fields with HTTP 400. The legacy `ADMIN_EMAIL` variable has no effect. Administrative provisioning is separate from public registration; see [the registration security decision](docs/adr/003-public-registration-role.md). Existing roles are not rewritten by this change.
 
-The old tracked `src/config/env.ts` was removed from `dev`; its historical MongoDB/email credentials must be revoked by their owner. Historical commits and the legacy `main` branch may still contain them. Removing the current file does not rotate credentials. No old credentials are used for this deployment.
+The old tracked `src/config/env.ts` was removed from `dev`, and credential literals were removed from current legacy `main` on 2026-11-24. Historical commits may still contain them. The owner confirmed removal of the Nodemailer access and decided to delete MongoDB; other historical revocations were deferred. Provider state is not independently verified. See [the credential decision record](docs/security/C0_3_STATUS_UA.md). No historical credentials are used for this deployment.
 
 ## Database safety
 

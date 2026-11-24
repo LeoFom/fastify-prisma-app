@@ -1,47 +1,41 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { NovaPoshtaService } from './nova-poshta.service';
-import {getCitiesSchema, getSettlementsSchema, getWarehousesSchema} from './nova-poshta.schema';
-import {z, ZodError} from "zod";
-import {GetCitiesQuery, GetWarehousesQuery} from "./nova-poshta.types";
+import { FastifyRequest, FastifyReply } from 'fastify'
+import { NovaPoshtaService } from './nova-poshta.service'
+import { getCitiesSchema, getSettlementsSchema, getWarehousesSchema } from './nova-poshta.schema'
+import { GetCitiesQuery, GetWarehousesQuery } from './nova-poshta.types'
 
 export class NovaPoshtaController {
-  constructor(
-    private readonly service: NovaPoshtaService,
-  ) {}
+  constructor(private readonly service: NovaPoshtaService) {}
 
   getCities = async (
     req: FastifyRequest<{
-      Querystring: GetCitiesQuery;
+      Querystring: GetCitiesQuery
     }>,
-    res: FastifyReply,
+    _res: FastifyReply,
   ) => {
-    const query = getCitiesSchema.parse(req.query);
+    const query = getCitiesSchema.parse(req.query)
 
-    return this.service.getCities(query.query);
-  };
+    return this.service.getCities(query.query)
+  }
 
   getSettlements = async (
     req: FastifyRequest<{
-      Querystring: GetCitiesQuery;
+      Querystring: GetCitiesQuery
     }>,
-    res: FastifyReply,
+    _res: FastifyReply,
   ) => {
-    const query = getSettlementsSchema.parse(req.query);
+    const query = getSettlementsSchema.parse(req.query)
 
-    return this.service.getCities(query.query);
-  };
+    return this.service.getCities(query.query)
+  }
 
   getWarehouses = async (
     req: FastifyRequest<{
-      Querystring: GetWarehousesQuery;
+      Querystring: GetWarehousesQuery
     }>,
-    res: FastifyReply,
+    _res: FastifyReply,
   ) => {
-    const query = getWarehousesSchema.parse(req.query);
+    const query = getWarehousesSchema.parse(req.query)
 
-    return this.service.getWarehouses(
-      query.cityRef,
-      query.query,
-    );
-  };
+    return this.service.getWarehouses(query.cityRef, query.query)
+  }
 }
