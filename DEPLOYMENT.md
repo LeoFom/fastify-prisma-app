@@ -58,3 +58,7 @@ On this Windows agent, Prisma's native migration connector returned an unspecifi
 Neon Free currently includes 1 GB and 100 CU-hours per project per month. Render Free sleeps after 15 idle minutes; its 750 monthly instance-hours are shared by the workspace's free web services, including other projects. Cold starts can delay the first request. Free Render PostgreSQL expires after 30 days, so this deployment uses external Neon instead. Quotas and prices may change. [Neon](https://neon.com/pricing) · [Render](https://render.com/docs/free)
 
 Nova Poshta requires its own key. Until configured its routes return 503 without making upstream calls. No live shipping-label purchase or email sending is enabled by deployment. Checkout's payment records are not an integration with a card payment provider; real online payment, transactional email, loyalty/newsletter behavior and importing real products are separate work. An empty database initially has no catalog; add products through an admin account.
+
+## Release baseline and rollback
+
+See the [C0.5 baseline](docs/releases/2026-11-24-baseline.json), [release/rollback runbook](docs/RELEASE_AND_ROLLBACK_UA.md), and [verification report](docs/C0_5_RELEASE_BASELINE_UA.md). The manifest separates observed production from dev/preview; it is not a deployment authorization. Production-linked dev, missing persistent staging, and the test branch migration-ledger gap are explicitly recorded. Do not run write smoke tests against an unverified preview target.

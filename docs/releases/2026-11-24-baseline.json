@@ -1,0 +1,140 @@
+{
+  "formatVersion": 1,
+  "baselineId": "coffeo-c0.5-2026-11-24",
+  "observedAtUtc": "2026-11-24 20:38:32 UTC",
+  "kind": "observation-not-production-release-authorization",
+  "repositories": {
+    "api": {
+      "url": "https://github.com/LeoFom/fastify-prisma-app",
+      "branch": "dev",
+      "commit": "4085ab946271a8507d2279d3ea1eb670683c768c",
+      "ciRun": "https://github.com/LeoFom/fastify-prisma-app/actions/runs/45480830945",
+      "ciConclusion": "success",
+      "packageLockSha256": "646956b4fb60a736fc8248e361d87543e27d974f1e689e3dfc626da712db3795"
+    },
+    "web": {
+      "url": "https://github.com/LeoFom/coffee-shop",
+      "branch": "dev",
+      "commit": "00e8df13adea0176c1c3a0161e0d0677c5c26dee",
+      "ciRun": "https://github.com/LeoFom/coffee-shop/actions/runs/45480407017",
+      "ciConclusion": "success",
+      "packageLockSha256": "2c6b167dac2ff06460de7191b8481c62cd9022ad702cda8eb75937709b2cebd4"
+    }
+  },
+  "observedProduction": {
+    "api": {
+      "serviceId": "srv-dbvf1l67bikc738e9ol0",
+      "url": "https://coffeo-api.onrender.com",
+      "commit": "4085ab946271a8507d2279d3ea1eb670683c768c",
+      "deployId": "dep-dc2v6b60tbcc738rd5i0",
+      "state": "live",
+      "branch": "dev",
+      "autoDeployTrigger": "checksPass",
+      "buildCommand": "npm ci --include=dev && npm run build",
+      "startCommand": "npm run db:deploy && npm start"
+    },
+    "web": {
+      "projectId": "prj_qn9lHioICylQGA9k7ktw9yAd8ekf",
+      "url": "https://coffeo-shop-one.vercel.app",
+      "commit": "a31adeb384121d678d6617f33045f8bb88f3158a",
+      "deployId": "dpl_6ZJquJL4HBzXCBbmSdYEyFoEAnXo",
+      "state": "READY",
+      "sourceBranch": "dev",
+      "configuredProductionBranch": null,
+      "productionBranchVerification": "not exposed by inspected connector responses",
+      "ciRun": "https://github.com/LeoFom/coffee-shop/actions/runs/45463925271"
+    }
+  },
+  "observedPreview": {
+    "web": {
+      "commit": "00e8df13adea0176c1c3a0161e0d0677c5c26dee",
+      "deployId": "dpl_A7zyakC5UZGXijN9pdvetipWZxH6",
+      "url": "https://coffeo-shop-9s5j1mz4q-leofoms-projects.vercel.app",
+      "state": "READY"
+    },
+    "apiIsolation": "not independently verified; no write tests allowed"
+  },
+  "database": {
+    "projectId": "green-darkness-31168328",
+    "databaseName": "coffeo",
+    "productionBranchId": "br-dawn-violet-bgwsyhgj",
+    "testBranchId": "br-dawn-shape-bgpsdr4j",
+    "latestMigration": "20260907160319_add_user_role",
+    "migrationCount": 8,
+    "productionLedgerVerified": true,
+    "productionChecksumsMatchRepository": true,
+    "schemaDriftChecked": false,
+    "testBranchHasPrismaMigrationLedger": false,
+    "schemaSha256": "7cc74bd44e7e08a7c348539ceee0136f0ff01955d27de15e97006d4afc477743",
+    "migrationLockSha256": "99836963713b4f5b269ad49af0ed3d7b0b2e336115c2f92dc9ac683d139d0900",
+    "fingerprintLineEndings": "LF",
+    "migrations": [
+      {
+        "name": "20260509062418_init",
+        "sha256": "5df0118d4338b3f36bf6dbebeaf2036541dae94a21eff99e75ee540d2a45895f"
+      },
+      {
+        "name": "20260509155134_add_user_table",
+        "sha256": "5a00aa1a28f496f6cb91f6e4005b5a37989c0aa269141c0112c1552176428056"
+      },
+      {
+        "name": "20260511062013_task_user_relation",
+        "sha256": "6dc395ba4adaa405411be56ae1f78ce62b232c913dcfb616821bbfe508b70717"
+      },
+      {
+        "name": "20260511193504_tables_from_supabase",
+        "sha256": "c6a676f5af092792dfe40c0fadbe239831ebcbd1d0d459a87448668830c6b60a"
+      },
+      {
+        "name": "20260521110946_update_profile",
+        "sha256": "15a45f423ac95792e0d106e2a6de8f05e5f67f1946aaa9077dd7eddf72c0c174"
+      },
+      {
+        "name": "20260605104015_update_products_models",
+        "sha256": "07fe74ffc534a1696daa2210a9af69ccaea43f0400b461ea7e99d3cd0d87aeb6"
+      },
+      {
+        "name": "20260607210912_checkout_models",
+        "sha256": "acaa8000321db32e48fef093efc6fdf345c2e2638cdec40f65b9aa706f94c313"
+      },
+      {
+        "name": "20260907160319_add_user_role",
+        "sha256": "7e0de8e98bfa39e506d36c43d7269fbce6b0dfe99f86764b04464f32404dbbe5"
+      }
+    ]
+  },
+  "staging": {
+    "persistentFullStackProvisioned": false,
+    "available": "local UI + local Fastify + isolated test database; disposable PostgreSQL in CI",
+    "migrationRehearsal": "fresh disposable PostgreSQL in CI; do not run deploy against the test branch without migration-ledger reconciliation"
+  },
+  "verification": {
+    "productionReadOnlySmoke": {
+      "apiLive": 200,
+      "apiReady": 200,
+      "webShopHead": 200
+    },
+    "productionWriteTestsRun": false,
+    "pairedFullFlowRehearsalInC05": false,
+    "rollbackExecuted": false,
+    "restoreDrillExecuted": false
+  },
+  "rollbackTargets": {
+    "api": {
+      "commit": "4085ab946271a8507d2279d3ea1eb670683c768c",
+      "deployId": "dep-dc2v6b60tbcc738rd5i0"
+    },
+    "web": {
+      "commit": "a31adeb384121d678d6617f33045f8bb88f3158a",
+      "deployId": "dpl_6ZJquJL4HBzXCBbmSdYEyFoEAnXo"
+    },
+    "databasePolicy": "no automatic down/reset/restore; code rollback requires compatible current schema"
+  },
+  "ownerDecisions": {
+    "mailCredential": "revoked per owner confirmation",
+    "mongo": "owner chose deletion; completion not independently verified",
+    "historicalJwtAndLocalPostgres": "deferred by owner",
+    "continueAfterC03": true
+  },
+  "cloudConfigurationChangedInC05": false
+}

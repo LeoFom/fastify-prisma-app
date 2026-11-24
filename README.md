@@ -24,3 +24,7 @@ npm run db:validate
 ```
 
 `npm test` запускає інтеграційні тести та format-gate тести. Він потребує `NODE_ENV=test`, ізольованої PostgreSQL із застосованими міграціями та синтетичних auth/internal secrets. Локально можна задати їх через ігнорований `.env.test`; CI використовує disposable PostgreSQL. Не підставляти production env. `npm run test:tooling` працює без БД.
+
+## Release baseline
+
+[Зафіксовані версії](docs/releases/2026-11-24-baseline.json) · [порядок релізу й відкату](docs/RELEASE_AND_ROLLBACK_UA.md) · [результати C0.5](docs/C0_5_RELEASE_BASELINE_UA.md).
