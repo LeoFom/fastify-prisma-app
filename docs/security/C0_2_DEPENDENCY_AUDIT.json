@@ -1,0 +1,1001 @@
+{
+  "date": "2026-11-24",
+  "command": "npm audit --json",
+  "scope": "all dependencies including dev",
+  "before": {
+    "info": 0,
+    "low": 1,
+    "moderate": 4,
+    "high": 12,
+    "critical": 1,
+    "total": 18
+  },
+  "after": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "note": "Package-level aggregates are not independent exploit counts. A zero result is a registry snapshot, not a guarantee against all vulnerabilities.",
+  "findings": [
+    {
+      "package": "@hono/node-server",
+      "severity": "moderate",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/@hono/node-server"
+      ],
+      "before": [
+        {
+          "path": "node_modules/@hono/node-server",
+          "version": "1.19.11"
+        }
+      ],
+      "after": [],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "@hono/node-server: Middleware bypass via repeated slashes in serveStatic",
+          "url": "https://github.com/advisories/GHSA-92pp-h63x-v22m",
+          "affectedRange": "<1.19.13",
+          "severity": "moderate"
+        },
+        {
+          "title": "Node.js Adapter for Hono: Path traversal in `serve-static` on Windows via encoded backslash (`%5C`)",
+          "url": "https://github.com/advisories/GHSA-frvp-7c67-39w9",
+          "affectedRange": "<1.19.15",
+          "severity": "moderate"
+        },
+        {
+          "title": "@hono/node-server: `serveStatic` decodes the request path a second time, leading to bypass of middleware on static paths",
+          "url": "https://github.com/advisories/GHSA-rmxm-3fg6-px4f",
+          "affectedRange": ">=1.19.10 <2.1.3",
+          "severity": "moderate"
+        },
+        {
+          "title": "@hono/node-server: Backslash in the request path is parsed as a path separator, bypassing path-based access control at a reverse proxy",
+          "url": "https://github.com/advisories/GHSA-jpvv-r467-5p4w",
+          "affectedRange": "<1.19.18",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "@prisma/config",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/@prisma/config"
+      ],
+      "before": [
+        {
+          "path": "node_modules/@prisma/config",
+          "version": "7.8.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/@prisma/config",
+          "version": "7.10.1"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [
+        "deepmerge-ts",
+        "effect"
+      ],
+      "advisories": []
+    },
+    {
+      "package": "@prisma/dev",
+      "severity": "moderate",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/@prisma/dev"
+      ],
+      "before": [
+        {
+          "path": "node_modules/@prisma/dev",
+          "version": "0.24.3"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/@prisma/dev",
+          "version": "0.24.17"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [
+        "@hono/node-server",
+        "valibot"
+      ],
+      "advisories": []
+    },
+    {
+      "package": "brace-expansion",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/brace-expansion"
+      ],
+      "before": [
+        {
+          "path": "node_modules/brace-expansion",
+          "version": "1.1.14"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/brace-expansion",
+          "version": "1.1.22"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "affectedRange": "<1.1.16",
+          "severity": "high"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "affectedRange": "<1.1.17",
+          "severity": "high"
+        },
+        {
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "affectedRange": "<1.1.18",
+          "severity": "high"
+        },
+        {
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "affectedRange": "<1.1.21",
+          "severity": "moderate"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "affectedRange": "<1.1.20",
+          "severity": "high"
+        },
+        {
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "affectedRange": "<1.1.19",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "deepmerge-ts",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/deepmerge-ts"
+      ],
+      "before": [
+        {
+          "path": "node_modules/deepmerge-ts",
+          "version": "7.1.5"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/deepmerge-ts",
+          "version": "8.0.2"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+          "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+          "affectedRange": "<8.0.0",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "effect",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/effect"
+      ],
+      "before": [
+        {
+          "path": "node_modules/effect",
+          "version": "3.20.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/effect",
+          "version": "3.22.5"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "Effect: ReDoS in Schema.TemplateLiteral compiled regex",
+          "url": "https://github.com/advisories/GHSA-7589-6fvf-x4pw",
+          "affectedRange": "<=3.22.0",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "esbuild",
+      "severity": "low",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/esbuild"
+      ],
+      "before": [
+        {
+          "path": "node_modules/esbuild",
+          "version": "0.28.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/esbuild",
+          "version": "0.28.2"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "esbuild allows arbitrary file read when running the development server on Windows",
+          "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+          "affectedRange": ">=0.27.3 <0.28.1",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "package": "fast-copy",
+      "severity": "moderate",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/fast-copy"
+      ],
+      "before": [
+        {
+          "path": "node_modules/fast-copy",
+          "version": "4.0.3"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/fast-copy",
+          "version": "4.3.4"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "fast-copy: Stack exhaustion in fast-copy when copying deeply-nested values",
+          "url": "https://github.com/advisories/GHSA-jggr-w7fw-pc2j",
+          "affectedRange": ">=4.0.0 <4.1.0",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "fast-jwt",
+      "severity": "critical",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/fast-jwt"
+      ],
+      "before": [
+        {
+          "path": "node_modules/fast-jwt",
+          "version": "6.2.4"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/fast-jwt",
+          "version": "6.3.7"
+        }
+      ],
+      "assessment": "Request/auth/validation dependency chain. JWT keys are nonempty HMAC secrets, not RSA/JWK; this excludes some algorithm-confusion prerequisites, not all advisories. Upgraded without claiming exploitation.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "fast-jwt: Verifier cache accepts expired JWTs without iat.",
+          "url": "https://github.com/advisories/GHSA-x937-hj6v-793p",
+          "affectedRange": "<=6.3.3",
+          "severity": "moderate"
+        },
+        {
+          "title": "fast-jwt: createVerifier accepts unsigned JWTs when key is '' or null and algorithms is explicitly set",
+          "url": "https://github.com/advisories/GHSA-8wpc-h4q6-8fxv",
+          "affectedRange": "<=6.3.0",
+          "severity": "high"
+        },
+        {
+          "title": "fast-jwt: Incomplete patch of CVE-2026-34950: Non-whitespace key-prefix re-enables RSA→HS256 algorithm confusion",
+          "url": "https://github.com/advisories/GHSA-ww5h-9m49-7xx4",
+          "affectedRange": ">=6.2.0 <=6.2.4",
+          "severity": "critical"
+        },
+        {
+          "title": "fast-jwt clockTolerance: Infinity silently bypasses both exp and nbf validation (and persists in the verifier cache)",
+          "url": "https://github.com/advisories/GHSA-687g-22h4-j4w4",
+          "affectedRange": "<=6.2.4",
+          "severity": "moderate"
+        },
+        {
+          "title": "fast-jwt : Silent claim-validator bypass when JWT payload is a JSON array",
+          "url": "https://github.com/advisories/GHSA-5hjw-83fp-phq9",
+          "affectedRange": "<=6.2.4",
+          "severity": "high"
+        },
+        {
+          "title": "fast-jwt treats raw public JWK JSON as an HMAC secret, enabling HS256 token forgery",
+          "url": "https://github.com/advisories/GHSA-g3jj-5cmm-3hxx",
+          "affectedRange": "=6.2.4",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "fast-uri",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/fast-uri"
+      ],
+      "before": [
+        {
+          "path": "node_modules/fast-uri",
+          "version": "3.1.2"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/fast-uri",
+          "version": "3.1.9"
+        },
+        {
+          "path": "node_modules/fastify/node_modules/fast-uri",
+          "version": "4.2.4"
+        }
+      ],
+      "assessment": "Request/auth/validation dependency chain. JWT keys are nonempty HMAC secrets, not RSA/JWK; this excludes some algorithm-confusion prerequisites, not all advisories. Upgraded without claiming exploitation.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "fast-uri vulnerable to host confusion via literal backslash authority delimiter",
+          "url": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
+          "affectedRange": ">=3.0.0 <=3.1.3",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via backslash authority introducer",
+          "url": "https://github.com/advisories/GHSA-7p8r-x3mc-p8w7",
+          "affectedRange": ">=3.0.0 <3.1.5",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+          "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+          "affectedRange": ">=3.0.0 <3.1.6",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding",
+          "url": "https://github.com/advisories/GHSA-fph4-wmhf-6fwf",
+          "affectedRange": ">=3.1.2 <3.1.6",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+          "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+          "affectedRange": ">=3.0.0 <3.1.6",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to host confusion via failed IDN canonicalization",
+          "url": "https://github.com/advisories/GHSA-4c8g-83qw-93j6",
+          "affectedRange": ">=3.0.0 <3.1.3",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to authority injection via an unvalidated port in serialize",
+          "url": "https://github.com/advisories/GHSA-qw65-cvwx-89v3",
+          "affectedRange": ">=3.0.0 <3.1.7",
+          "severity": "high"
+        },
+        {
+          "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+          "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+          "affectedRange": ">=3.0.0 <3.1.8",
+          "severity": "moderate"
+        },
+        {
+          "title": "fast-uri vulnerable to URI scheme spoofing via percent-encoded scheme decoding",
+          "url": "https://github.com/advisories/GHSA-w74x-v6f9-j3xg",
+          "affectedRange": ">=3.0.0 <3.1.9",
+          "severity": "moderate"
+        },
+        {
+          "title": "fast-uri vulnerable to improper path equivalence in relative reference normalization",
+          "url": "https://github.com/advisories/GHSA-xhq7-xmqj-769h",
+          "affectedRange": ">=3.0.0 <3.1.9",
+          "severity": "low"
+        },
+        {
+          "title": "fast-uri vulnerable to scheme injection via an unescaped first-segment colon in suffix references",
+          "url": "https://github.com/advisories/GHSA-333x-w4r6-6crp",
+          "affectedRange": ">=3.0.0 <3.1.9",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "package": "fastify",
+      "severity": "high",
+      "direct": true,
+      "affectedPaths": [
+        "node_modules/fastify"
+      ],
+      "before": [
+        {
+          "path": "node_modules/fastify",
+          "version": "5.8.5"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/fastify",
+          "version": "5.12.8"
+        }
+      ],
+      "assessment": "Request/auth/validation dependency chain. JWT keys are nonempty HMAC secrets, not RSA/JWK; this excludes some algorithm-confusion prerequisites, not all advisories. Upgraded without claiming exploitation.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "fastify vulnerable to schema validation bypass via root primitive coercion mismatch",
+          "url": "https://github.com/advisories/GHSA-w2qp-rph6-63g4",
+          "affectedRange": "<5.12.1",
+          "severity": "moderate"
+        },
+        {
+          "title": "fastify vulnerable to X-Forwarded-* spoofing under trustProxy hop-count",
+          "url": "https://github.com/advisories/GHSA-3m5p-2c4r-xxw2",
+          "affectedRange": ">=5.8.3 <5.12.1",
+          "severity": "moderate"
+        },
+        {
+          "title": "fastify vulnerable to Denial of Service via unhandled exception on HTTP/2 trailer responses",
+          "url": "https://github.com/advisories/GHSA-4mh8-r7rc-xpvc",
+          "affectedRange": "<5.12.5",
+          "severity": "moderate"
+        },
+        {
+          "title": "fastify vulnerable to request body replacement via an async validation result collision",
+          "url": "https://github.com/advisories/GHSA-667r-xxjv-c9mm",
+          "affectedRange": "<5.12.2",
+          "severity": "high"
+        },
+        {
+          "title": "fastify vulnerable to authentication bypass via malformed URLs reaching encapsulated not-found handlers",
+          "url": "https://github.com/advisories/GHSA-p68q-wchp-6fh7",
+          "affectedRange": ">=4.0.0 <5.12.2",
+          "severity": "high"
+        },
+        {
+          "title": "fastify vulnerable to request validation bypass via skipped boolean false schemas",
+          "url": "https://github.com/advisories/GHSA-hwr6-493r-vm6h",
+          "affectedRange": "<5.12.2",
+          "severity": "high"
+        },
+        {
+          "title": "fastify vulnerable to header validation bypass via incomplete schema case normalization",
+          "url": "https://github.com/advisories/GHSA-9q9j-q6p8-xq58",
+          "affectedRange": "<5.12.2",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "find-my-way",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/find-my-way"
+      ],
+      "before": [
+        {
+          "path": "node_modules/find-my-way",
+          "version": "9.6.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/@prisma/dev/node_modules/find-my-way",
+          "version": "9.7.0"
+        },
+        {
+          "path": "node_modules/find-my-way",
+          "version": "9.10.2"
+        }
+      ],
+      "assessment": "Request/auth/validation dependency chain. JWT keys are nonempty HMAC secrets, not RSA/JWK; this excludes some algorithm-confusion prerequisites, not all advisories. Upgraded without claiming exploitation.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "find-my-way: DDoS with HTTP2",
+          "url": "https://github.com/advisories/GHSA-c96f-x56v-gq3h",
+          "affectedRange": "<=9.6.0",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "package": "hono",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/hono"
+      ],
+      "before": [
+        {
+          "path": "node_modules/hono",
+          "version": "4.12.18"
+        }
+      ],
+      "after": [],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "Hono: IP Restriction bypasses static deny rules for non-canonical IPv6 ",
+          "url": "https://github.com/advisories/GHSA-xrhx-7g5j-rcj5",
+          "affectedRange": "<4.12.21",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Cookie helper does not sanitize sameSite and priority, allowing Set-Cookie injection",
+          "url": "https://github.com/advisories/GHSA-3hrh-pfw6-9m5x",
+          "affectedRange": "<4.12.21",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: JWT middleware accepts any Authorization scheme, not only Bearer",
+          "url": "https://github.com/advisories/GHSA-f577-qrjj-4474",
+          "affectedRange": "<4.12.21",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: app.mount() strips mount prefix using undecoded path, causing incorrect routing for percent-encoded paths",
+          "url": "https://github.com/advisories/GHSA-2gcr-mfcq-wcc3",
+          "affectedRange": "<4.12.21",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono: Body Limit Middleware can be bypassed on AWS Lambda by understating `Content-Length`",
+          "url": "https://github.com/advisories/GHSA-rv63-4mwf-qqc2",
+          "affectedRange": "<4.12.25",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono: Lambda@Edge adapter keeps only the last value of a repeated request header, dropping the rest",
+          "url": "https://github.com/advisories/GHSA-wgpf-jwqj-8h8p",
+          "affectedRange": "<4.12.25",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono: CORS Middleware reflects any Origin with credentials when `origin` defaults to the wildcard",
+          "url": "https://github.com/advisories/GHSA-88fw-hqm2-52qc",
+          "affectedRange": "<4.12.25",
+          "severity": "high"
+        },
+        {
+          "title": "hono: Path traversal in `serve-static` on Windows via encoded backslash (`%5C`)",
+          "url": "https://github.com/advisories/GHSA-wwfh-h76j-fc44",
+          "affectedRange": "<4.12.25",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono: AWS Lambda adapter merges multiple `Set-Cookie` headers into one value, dropping cookies on ALB single-header and Lattice",
+          "url": "https://github.com/advisories/GHSA-j6c9-x7qj-28xf",
+          "affectedRange": "<4.12.25",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: API Gateway v1 adapter can drop a distinct repeated request header value during de-duplication",
+          "url": "https://github.com/advisories/GHSA-xgm2-5f3f-mvvc",
+          "affectedRange": ">=4.3.3 <4.12.27",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono/jsx does not isolate context per request, leading to cross-request data disclosure",
+          "url": "https://github.com/advisories/GHSA-hvrm-45r6-mjfj",
+          "affectedRange": ">=4.11.8 <4.12.27",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Server-Side XSS via JSX Escaping Bypass in cx() Utility",
+          "url": "https://github.com/advisories/GHSA-w62v-xxxg-mg59",
+          "affectedRange": ">=4.0.0 <4.12.27",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: ReDoS in CORS middleware via Access-Control-Request-Headers",
+          "url": "https://github.com/advisories/GHSA-8j4g-w8fx-2239",
+          "affectedRange": "<4.12.34",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: `memo()` retains SSR output across requests, leading to cross-user data disclosure",
+          "url": "https://github.com/advisories/GHSA-f23p-vx2j-j53r",
+          "affectedRange": ">=3.8.0 <4.12.34",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Proxy Helper does not remove response headers listed in the `Connection` header",
+          "url": "https://github.com/advisories/GHSA-79qm-7rj5-m7r9",
+          "affectedRange": ">=4.7.0 <4.12.34",
+          "severity": "low"
+        },
+        {
+          "title": "Hono: Algorithmic Complexity DoS in Language Middleware",
+          "url": "https://github.com/advisories/GHSA-54fx-42gc-7vw4",
+          "affectedRange": ">=4.12.0 <4.12.34",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Incomplete fix for CVE-2026-39408: `toSSG()` still writes files outside the output directory",
+          "url": "https://github.com/advisories/GHSA-gqvv-2mrq-wpjv",
+          "affectedRange": "<4.13.5",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Unbounded dot-notation nesting in `parseBody()` can cause memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-g6gw-c38x-mqfc",
+          "affectedRange": "<4.13.5",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: Query parser reads parameters after the URL fragment, causing cache-key and proxy interpretation differentials",
+          "url": "https://github.com/advisories/GHSA-crvj-82cr-hjcx",
+          "affectedRange": "<4.13.5",
+          "severity": "moderate"
+        },
+        {
+          "title": "hono/jsx renders plain strings unescaped in boundary components, leading to XSS",
+          "url": "https://github.com/advisories/GHSA-hxh3-vqpv-xpqv",
+          "affectedRange": "<4.13.7",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: `serveStatic` decodes the request path a second time, leading to bypass of middleware on static paths",
+          "url": "https://github.com/advisories/GHSA-5r4p-p66f-jhc7",
+          "affectedRange": ">=4.12.4 <4.13.11",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: `mount()` and `app.mount()` can forward a path that bypasses middleware scoped inside the mount prefix",
+          "url": "https://github.com/advisories/GHSA-4m76-xfj5-7975",
+          "affectedRange": "<4.13.16",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: RegExpRouter skips wildcard middleware for some route sets and for paths with an encoded line terminator",
+          "url": "https://github.com/advisories/GHSA-h7mg-cq63-vhpq",
+          "affectedRange": ">=4.1.4 <=4.13.15",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: `css` helper does not escape a closing tag split between the template and an interpolated value, allowing HTML injection",
+          "url": "https://github.com/advisories/GHSA-3gg2-335m-rxc6",
+          "affectedRange": ">=3.12.0 <=4.13.15",
+          "severity": "low"
+        },
+        {
+          "title": "Hono: `csrf()` does not check requests sent by hyperlink auditing (`text/ping`)",
+          "url": "https://github.com/advisories/GHSA-46wx-v44x-9hh2",
+          "affectedRange": "<4.13.16",
+          "severity": "moderate"
+        },
+        {
+          "title": "Hono: `validator('form')` skips validation for `multipart/form-data` requests with extra parameters",
+          "url": "https://github.com/advisories/GHSA-4h7h-rv7c-7m2v",
+          "affectedRange": ">=4.5.1 <=4.13.15",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "mysql2",
+      "severity": "high",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/mysql2"
+      ],
+      "before": [
+        {
+          "path": "node_modules/mysql2",
+          "version": "3.15.3"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/mysql2",
+          "version": "3.24.4"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+          "url": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+          "affectedRange": "<3.22.0",
+          "severity": "high"
+        },
+        {
+          "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+          "url": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+          "affectedRange": "<=3.23.0",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "nodemailer",
+      "severity": "high",
+      "direct": true,
+      "affectedPaths": [
+        "node_modules/nodemailer"
+      ],
+      "before": [
+        {
+          "path": "node_modules/nodemailer",
+          "version": "8.0.7"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/nodemailer",
+          "version": "10.6.1"
+        }
+      ],
+      "assessment": "Only src/jobs/send-mail.job.ts imports it; the helper is not wired to the running API. Upgraded to 10.x; stream-transport compatibility test performs no SMTP connection.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "Nodemailer: CRLF injection in Nodemailer List-* header comments allows arbitrary message header injection",
+          "url": "https://github.com/advisories/GHSA-268h-hp4c-crq3",
+          "affectedRange": "<=8.0.8",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer jsonTransport bypasses disableFileAccess and disableUrlAccess during message normalization",
+          "url": "https://github.com/advisories/GHSA-wqvq-jvpq-h66f",
+          "affectedRange": "<=8.0.8",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Message-level raw option bypasses disableFileAccess/disableUrlAccess, enabling arbitrary file read and full-response SSRF in the delivered message",
+          "url": "https://github.com/advisories/GHSA-p6gq-j5cr-w38f",
+          "affectedRange": "<=9.0.0",
+          "severity": "high"
+        },
+        {
+          "title": "Nodemailer: resolveContent() on a MailMessage bypasses disableFileAccess/disableUrlAccess when called with the legacy signature",
+          "url": "https://github.com/advisories/GHSA-8m3c-c648-2xjj",
+          "affectedRange": "<=9.1.0",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: IDN/Punycode domain allow-list bypass leads to email delivery to an attacker-controlled domain",
+          "url": "https://github.com/advisories/GHSA-wmmp-3585-3rmp",
+          "affectedRange": "<9.1.0",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n²)) time complexity in addressparser allows remote denial of service via a crafted address list",
+          "url": "https://github.com/advisories/GHSA-2x7j-588g-ccc2",
+          "affectedRange": "<9.1.0",
+          "severity": "high"
+        },
+        {
+          "title": "Nodemailer: Recipient-domain validation bypass via RFC 5322 comment mis-parsing leads to email delivery to an attacker-controlled domain",
+          "url": "https://github.com/advisories/GHSA-cc9r-2j5m-2m83",
+          "affectedRange": ">=6.9.16 <9.1.0",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Process-global DNS cache reuses TLS `servername` across transports, enabling cross-tenant SMTP credential disclosure",
+          "url": "https://github.com/advisories/GHSA-6vj9-mwq6-2f5v",
+          "affectedRange": ">=5.0.0 <10.0.2",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Nested structured recipient arrays bypass the parser depth limit and cause stack exhaustion DoS",
+          "url": "https://github.com/advisories/GHSA-8vvx-rff5-p5rq",
+          "affectedRange": "<10.0.2",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Quadratic backtracking in the addressparser free-text fallback allows remote denial of service",
+          "url": "https://github.com/advisories/GHSA-v53p-9fqp-m79j",
+          "affectedRange": "<=10.0.5",
+          "severity": "high"
+        },
+        {
+          "title": "Nodemailer: Improper TLS Certificate Validation in OAuth2 Token Fetch Enables Credential Interception",
+          "url": "https://github.com/advisories/GHSA-r7g4-qg5f-qqm2",
+          "affectedRange": "<=8.0.7",
+          "severity": "high"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n^2)) DKIM header unfolding lets a large folded header cause remote denial of service during signing",
+          "url": "https://github.com/advisories/GHSA-39m8-27wv-hr27",
+          "affectedRange": ">=3.0.0 <=10.0.9",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: A nested comment ends early in addressparser, releasing the rest of the comment as a recipient",
+          "url": "https://github.com/advisories/GHSA-8c8m-p3m8-cjg8",
+          "affectedRange": ">=3.0.0 <10.1.4",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: A \";\" inside a quoted string or comment ends an address group early in addressparser, turning display text into a recipient",
+          "url": "https://github.com/advisories/GHSA-m943-m63m-w62w",
+          "affectedRange": ">=3.0.0 <10.1.4",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: A \">\" inside a quoted local part ends an angle-addr early in addressparser, delivering to a domain the header does not name",
+          "url": "https://github.com/advisories/GHSA-85x2-q946-cp5h",
+          "affectedRange": ">=3.0.0 <10.1.4",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Quadratic backtracking in SMTP AUTH mechanism detection regexes allows pre-auth remote denial of service",
+          "url": "https://github.com/advisories/GHSA-4ffr-jq9g-5ffx",
+          "affectedRange": ">=3.0.0 <=10.0.12",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: RFC 5322 comment inside an angle-bracket address is never stripped",
+          "url": "https://github.com/advisories/GHSA-g73g-hqqh-jr95",
+          "affectedRange": ">=3.0.0 <=10.0.12",
+          "severity": "moderate"
+        },
+        {
+          "title": "Nodemailer: Quadratic (O(n^2)) SMTP client reply parsing lets a malicious server or MITM cause a pre-auth remote denial of service",
+          "url": "https://github.com/advisories/GHSA-4g23-2xm8-66gc",
+          "affectedRange": ">=3.0.0 <=10.0.9",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "prisma",
+      "severity": "high",
+      "direct": true,
+      "affectedPaths": [
+        "node_modules/prisma"
+      ],
+      "before": [
+        {
+          "path": "node_modules/prisma",
+          "version": "7.8.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/prisma",
+          "version": "7.10.1"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [
+        "@prisma/config",
+        "@prisma/dev",
+        "mysql2"
+      ],
+      "advisories": []
+    },
+    {
+      "package": "valibot",
+      "severity": "moderate",
+      "direct": false,
+      "affectedPaths": [
+        "node_modules/valibot"
+      ],
+      "before": [
+        {
+          "path": "node_modules/valibot",
+          "version": "1.2.0"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/valibot",
+          "version": "1.4.2"
+        }
+      ],
+      "assessment": "Prisma CLI/config/dev or development-tool chain; not an explicit public Fastify endpoint. Patched instead of leaving build/development dependencies vulnerable.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "Valibot: record() issue paths can make flatten() throw for inherited Object property names",
+          "url": "https://github.com/advisories/GHSA-5qjj-4xww-7phc",
+          "affectedRange": "<=1.4.1",
+          "severity": "moderate"
+        }
+      ]
+    },
+    {
+      "package": "zod",
+      "severity": "high",
+      "direct": true,
+      "affectedPaths": [
+        "node_modules/zod"
+      ],
+      "before": [
+        {
+          "path": "node_modules/zod",
+          "version": "4.4.3"
+        }
+      ],
+      "after": [
+        {
+          "path": "node_modules/zod",
+          "version": "4.6.7"
+        }
+      ],
+      "assessment": "Request/auth/validation dependency chain. JWT keys are nonempty HMAC secrets, not RSA/JWK; this excludes some algorithm-confusion prerequisites, not all advisories. Upgraded without claiming exploitation.",
+      "mitigation": "Patched dependency/lockfile; final full npm audit contains no findings.",
+      "upstreamAggregates": [],
+      "advisories": [
+        {
+          "title": "Zod can exhaust memory while validating oversized constrained collections",
+          "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+          "affectedRange": "<4.6.6",
+          "severity": "high"
+        }
+      ]
+    }
+  ]
+}
