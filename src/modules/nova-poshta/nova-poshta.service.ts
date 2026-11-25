@@ -7,7 +7,6 @@ export class NovaPoshtaService {
     const response = await this.repository.findCities(query)
 
     const cities = response.data?.[0]?.Addresses ?? []
-    console.log('(getCities) - cities: ', cities)
 
     return cities
     //   .map((city: NPCity) => ({
@@ -21,7 +20,6 @@ export class NovaPoshtaService {
     const response = await this.repository.findWarehouses(cityRef, query)
 
     const data = response.data
-    console.log('getWarehouses - data', data)
     return data
   }
 }

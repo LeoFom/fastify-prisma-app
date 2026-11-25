@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { NovaPoshtaRepository } from './nova-poshta.repository'
 import { NovaPoshtaService } from './nova-poshta.service'
 import { NovaPoshtaController } from './nova-poshta.controller'
+import { sendMappedError } from '../../shared/http/errors'
 
 // const repository = new NovaPoshtaRepository(prisma);
 // const service = new NovaPoshtaService(repository);
@@ -17,9 +18,9 @@ import { NovaPoshtaController } from './nova-poshta.controller'
 // }
 
 export async function novaPoshtaRouter(fastify: FastifyInstance) {
-  fastify.addHook('preHandler', async (_request, reply) => {
+  fastify.addHook('preHandler', async (request, reply) => {
     if (!process.env.NOVA_POSHTA_API_KEY)
-      return reply.code(503).send({ message: 'Nova Poshta is not configured' })
+      return sendMappedError(request, reply, new Error('Nova Poshta API request failed'))
   })
   const repository = new NovaPoshtaRepository(process.env.NOVA_POSHTA_API_KEY!)
 

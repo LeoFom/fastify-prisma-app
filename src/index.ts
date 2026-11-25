@@ -1,15 +1,14 @@
 import { buildApp } from './app'
 import { prisma } from './config/prisma'
 import { promoteConfiguredAdmin } from './shared/promote-admin'
-import 'dotenv/config';
+import { readRuntimeEnv } from './config/runtime-env'
+import 'dotenv/config'
 
 const start = async () => {
-
   const app = buildApp()
-  const port = Number(process?.env?.PORT) || 3001
+  const port = readRuntimeEnv().PORT
 
   try {
-
     await prisma.$connect()
     await promoteConfiguredAdmin()
 
@@ -25,9 +24,7 @@ const start = async () => {
         process.exit(0)
       })
     }
-
   } catch (error) {
-
     app.log.error({ code: 'STARTUP_FAILED' }, 'Check database and environment configuration')
 
     process.exit(1)

@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { ProductService } from './product.service'
 import { createProductsSchema, updateProductsSchema } from './product.schema'
-import { z, ZodError } from 'zod'
+import { sendMappedError } from '../../shared/http/errors'
 
 export class ProductController {
   constructor(private readonly service: ProductService) {}
@@ -26,20 +26,7 @@ export class ProductController {
 
       return res.status(201).send(product)
     } catch (error) {
-      console.dir(error, { depth: null })
-
-      if (error instanceof ZodError) {
-        return res.status(400).send({
-          message: 'Validation failed',
-          errors: z.treeifyError(error),
-        })
-      }
-
-      req.log.error(`(create products) ERROR LOG: ${error}`)
-
-      return res.status(500).send({
-        message: 'Internal server error',
-      })
+      return sendMappedError(req, res, error)
     }
   }
 

@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { Prisma } from '@prisma/client'
-import { ZodError } from 'zod'
 import { prisma } from '../../config/prisma'
+import { sendMappedError } from '../../shared/http/errors'
 import { authMiddleware } from '../../shared/plugins/auth'
 import { adminMiddleware } from '../../shared/plugins/admin'
 import { productInclude, toProductDTO, toProfileDTO } from './mappers'
@@ -57,21 +57,7 @@ export async function v1Routes(app: FastifyInstance) {
     }
   })
 
-  app.setErrorHandler((error, request, reply) => {
-    if (error instanceof ZodError) {
-      const fieldErrors: Record<string, string[]> = {}
-      for (const issue of error.issues) {
-        const key = issue.path.map(String).join('.') || '_root'
-        ;(fieldErrors[key] ??= []).push(issue.message)
-      }
-      return fail(reply, request, 400, 'VALIDATION_FAILED', 'Validation failed', fieldErrors)
-    }
-    if (error instanceof Error && 'statusCode' in error && error.statusCode === 400) {
-      return fail(reply, request, 400, 'VALIDATION_FAILED', 'Invalid request body')
-    }
-    request.log.error({ code: 'V1_REQUEST_FAILED', requestId: request.id })
-    return fail(reply, request, 500, 'INTERNAL_ERROR', 'Internal server error')
-  })
+  app.setErrorHandler((error, request, reply) => sendMappedError(request, reply, error))
 
   app.setNotFoundHandler((request, reply) =>
     fail(reply, request, 404, 'NOT_FOUND', 'Resource not found'),
