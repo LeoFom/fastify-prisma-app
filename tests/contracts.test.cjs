@@ -5,6 +5,13 @@ const { buildApp } = require('../dist/app')
 const { prisma } = require('../dist/config/prisma')
 const { decimalToMinor } = require('../dist/contracts/v1/mappers')
 const {
+  mintAccess,
+  mintRefresh,
+  newSessionIdentity,
+  signingKeyId,
+} = require('../dist/modules/auth/session-tokens')
+const { hashToken } = require('../dist/utils/hash-token')
+const {
   apiError,
   productDTO,
   productsResponse,
@@ -52,10 +59,8 @@ test('v1 catalog and profile follow schemas; unknown writes fail before persiste
   const userId = randomUUID()
   const hiddenId = randomUUID()
   const key = process.env.INTERNAL_API_KEY
-  const token = app.jwt.sign(
-    { userId, email: `contract-${userId}@example.test` },
-    { expiresIn: '15m' },
-  )
+  const identity = newSessionIdentity()
+  const token = mintAccess({ id: userId, email: `contract-${userId}@example.test` }, identity.sid)
   const headers = { 'x-coffeo-api-key': key, cookie: `accessToken=${token}` }
   const inject = (method, url, payload, authenticated = true) =>
     app.inject({
@@ -70,6 +75,25 @@ test('v1 catalog and profile follow schemas; unknown writes fail before persiste
         id: userId,
         email: `contract-${userId}@example.test`,
         passwordHash: 'synthetic-hash',
+      },
+    })
+    const rawRefresh = mintRefresh({
+      userId,
+      sid: identity.sid,
+      jti: identity.jti,
+      issuedAt: identity.issuedAt,
+      expiresAt: identity.expiresAt,
+      keyId: signingKeyId,
+    })
+    await prisma.session.create({
+      data: {
+        id: identity.sid,
+        userId,
+        refreshToken: hashToken(rawRefresh),
+        currentJti: identity.jti,
+        currentIssuedAt: new Date(identity.issuedAt * 1000),
+        expiresAt: new Date(identity.expiresAt * 1000),
+        signingKeyId,
       },
     })
     await prisma.product.createMany({

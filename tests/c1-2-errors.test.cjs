@@ -1,8 +1,13 @@
 const assert = require('node:assert/strict')
 const { randomUUID } = require('node:crypto')
 const test = require('node:test')
-const jwt = require('jsonwebtoken')
 const { buildApp } = require('../dist/app')
+const {
+  mintAccess,
+  mintRefresh,
+  newSessionIdentity,
+  signingKeyId,
+} = require('../dist/modules/auth/session-tokens')
 const { readRuntimeEnv } = require('../dist/config/runtime-env')
 const { classifyError } = require('../dist/shared/http/errors')
 const { AuthRepository } = require('../dist/modules/auth/auth.repository')
@@ -45,8 +50,16 @@ test('database outage during auth returns 503 without clearing cookies', async (
   const app = buildApp()
   await app.ready()
   const userId = randomUUID()
-  const access = app.jwt.sign({ userId, email: 'synthetic@example.test' }, { expiresIn: '15m' })
-  const refresh = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+  const identity = newSessionIdentity()
+  const access = mintAccess({ id: userId, email: 'synthetic@example.test' }, identity.sid)
+  const refresh = mintRefresh({
+    userId,
+    sid: identity.sid,
+    jti: identity.jti,
+    issuedAt: identity.issuedAt,
+    expiresAt: identity.expiresAt,
+    keyId: signingKeyId,
+  })
   const key = process.env.INTERNAL_API_KEY
   const headers = { 'x-coffeo-api-key': key }
   const inject = (method, url, cookie, payload, extra = {}) =>
@@ -61,7 +74,7 @@ test('database outage during auth returns 503 without clearing cookies', async (
     assert.equal(denied.statusCode, 401)
     assert.equal(denied.json().error.code, 'UNAUTHORIZED')
 
-    t.mock.method(AuthRepository.prototype, 'findById', async () => {
+    t.mock.method(AuthRepository.prototype, 'findSessionById', async () => {
       throw outage()
     })
     const me = await inject('GET', '/auth/me', `accessToken=${access}`)
@@ -72,17 +85,18 @@ test('database outage during auth returns 503 without clearing cookies', async (
     assert.equal(me.headers['set-cookie'], undefined)
     assert.doesNotMatch(me.body, /synthetic secret/)
 
-    t.mock.method(AuthRepository.prototype, 'findSessionByToken', async () => {
+    t.mock.method(AuthRepository.prototype, 'withLockedSession', async () => {
       throw outage()
     })
     const recovered = await inject('GET', '/cart', `refreshToken=${refresh}`)
-    assert.equal(recovered.statusCode, 503, recovered.body)
+    assert.equal(recovered.statusCode, 401, recovered.body)
+    assert.equal(recovered.json().error.code, 'ACCESS_EXPIRED')
     assert.equal(recovered.headers['set-cookie'], undefined)
     const rotated = await inject('POST', '/auth/refresh', `refreshToken=${refresh}`)
     assert.equal(rotated.statusCode, 503, rotated.body)
     assert.equal(rotated.headers['set-cookie'], undefined)
 
-    t.mock.method(AuthRepository.prototype, 'deleteSessionByToken', async () => {
+    t.mock.method(AuthRepository.prototype, 'revokeSession', async () => {
       throw outage()
     })
     const logout = await inject('POST', '/auth/logout', `refreshToken=${refresh}`)

@@ -27,7 +27,7 @@ export class AuthController {
     setAuthCookies(reply, {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
-      userId: result.user.id,
+      expiresAt: result.expiresAt,
     })
 
     return reply.send({
@@ -56,7 +56,7 @@ export class AuthController {
       setAuthCookies(reply, {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
-        userId: result.user.id,
+        expiresAt: result.expiresAt,
       })
 
       return reply.send({
@@ -77,9 +77,7 @@ export class AuthController {
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = request.cookies.refreshToken
 
-    if (refreshToken) {
-      await this.authService.logout(refreshToken)
-    }
+    await this.authService.logout(refreshToken, request.cookies.accessToken)
 
     clearAuthCookies(reply)
 

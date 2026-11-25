@@ -75,6 +75,8 @@ export function classifyError(error: unknown): Failure {
   )
     return { status: 401, ...messages[401]!, fieldErrors: {} }
   if (text === 'User already exists') return { status: 409, ...messages[409]!, fieldErrors: {} }
+  if (text === 'Access expired')
+    return { status: 401, code: 'ACCESS_EXPIRED', message: 'Access expired', fieldErrors: {} }
   if (text === 'Product not found') return { status: 404, ...messages[404]!, fieldErrors: {} }
   if (text === 'Nova Poshta API request failed')
     return {

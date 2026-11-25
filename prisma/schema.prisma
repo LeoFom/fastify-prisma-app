@@ -111,6 +111,13 @@ model Session {
   id           String   @id @default(uuid()) @db.Uuid
   userId       String   @db.Uuid
   refreshToken String   @unique
+  currentJti   String?  @unique @db.Uuid
+  currentIssuedAt DateTime?
+  previousRefreshHash String? @unique
+  previousValidUntil DateTime?
+  rotationVersion Int @default(0)
+  revokedAt DateTime?
+  signingKeyId String?
   userAgent    String?
   ipAddress    String?
   expiresAt    DateTime
@@ -119,6 +126,7 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([expiresAt, revokedAt])
   @@map("sessions")
 }
 

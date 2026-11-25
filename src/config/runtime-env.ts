@@ -29,6 +29,13 @@ const schema = z
     ),
   })
   .superRefine((value, context) => {
+    if (value.JWT_ACCESS_SECRET === value.JWT_REFRESH_SECRET) {
+      context.addIssue({
+        code: 'custom',
+        path: ['JWT_REFRESH_SECRET'],
+        message: 'Must differ from access secret',
+      })
+    }
     if (value.NODE_ENV === 'production' && !value.INTERNAL_API_KEY) {
       context.addIssue({
         code: 'custom',

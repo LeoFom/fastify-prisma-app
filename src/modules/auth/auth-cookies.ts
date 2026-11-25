@@ -12,12 +12,16 @@ export function setAuthCookies(
   tokens: {
     accessToken: string
     refreshToken: string
-    userId: string
-  }
+    expiresAt: Date
+  },
 ) {
-  reply.setCookie('accessToken', tokens.accessToken, cookieOptions)
-  reply.setCookie('refreshToken', tokens.refreshToken, cookieOptions)
-  reply.setCookie('userId', tokens.userId, cookieOptions)
+  reply.setCookie('accessToken', tokens.accessToken, { ...cookieOptions, maxAge: 15 * 60 })
+  reply.setCookie('refreshToken', tokens.refreshToken, {
+    ...cookieOptions,
+    maxAge: Math.max(0, Math.floor((tokens.expiresAt.getTime() - Date.now()) / 1000)),
+  })
+  // Remove the legacy hint cookie; the server never trusts it for identity.
+  reply.clearCookie('userId', { path: '/' })
 }
 
 export function clearAuthCookies(reply: FastifyReply) {

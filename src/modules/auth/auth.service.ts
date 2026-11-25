@@ -1,225 +1,160 @@
-import jwt from 'jsonwebtoken'
-import {AuthRepository} from "./auth.repository";
-import {comparePasswords, hashPassword} from "./auth.utils";
-import {LoginInput, RegisterInput} from "./auth.types";
-import 'dotenv/config';
-import {ProfileRepository} from "../profile/profile.repository";
-import {hashToken} from "../../utils/hash-token";
+import { randomUUID } from 'node:crypto'
+import { AuthRepository } from './auth.repository'
+import { comparePasswords, hashPassword } from './auth.utils'
+import type { LoginInput, RegisterInput } from './auth.types'
+import { hashToken } from '../../utils/hash-token'
+import {
+  graceSeconds,
+  mintAccess,
+  mintRefresh,
+  newSessionIdentity,
+  refreshFromSession,
+  signingKeyId,
+  verifyAccess,
+  verifyRefresh,
+} from './session-tokens'
+
+const publicUser = (user: { id: string; email: string; role: 'Customer' | 'Admin' }) => ({
+  id: user.id,
+  email: user.email,
+  role: user.role,
+})
 
 export class AuthService {
   private repository = new AuthRepository()
-  private profile = new ProfileRepository()
+  constructor(private readonly now: () => Date = () => new Date()) {}
 
   async register(data: RegisterInput) {
-    const existingUser = await this.repository.findByEmail(data.email)
-
-    if (existingUser) {
-      throw new Error('User already exists')
-    }
-
-    const passwordHash =
-      await hashPassword(data.password)
-
-    const user =
-      await this.repository.createUser({
-        email: data.email,
-        passwordHash
-      })
-
-    await this.profile.create(
-      user.id,
-      {
-        firstName: 'Coffee',
-        lastName: "Is great",
-      }
-    )
-
-    return user
+    const email = data.email.trim().toLowerCase()
+    if (await this.repository.findByEmail(email)) throw new Error('User already exists')
+    const passwordHash = await hashPassword(data.password)
+    return this.repository.createUserWithProfile({ email, passwordHash })
   }
 
   async login(data: LoginInput) {
-
-    const user =
-      await this.repository.findByEmail(
-        data.email
-      )
-
-    if (!user) {
+    const user = await this.repository.findByEmail(data.email.trim().toLowerCase())
+    if (!user || !(await comparePasswords(data.password, user.passwordHash)))
       throw new Error('Invalid credentials')
-    }
 
-    const isValid =
-      await comparePasswords(
-        data.password,
-        user.passwordHash
-      )
-
-    if (!isValid) {
-      throw new Error('Invalid credentials')
-    }
-
-    const accessToken =
-      jwt.sign(
-        {
-          userId: user.id,
-          email: user.email,
-        },
-        process.env.JWT_ACCESS_SECRET!,
-        {
-          expiresIn: '15m'
-        }
-      )
-
-    const refreshToken =
-      jwt.sign(
-        {
-          userId: user.id,
-        },
-        process.env.JWT_REFRESH_SECRET!,
-        {
-          expiresIn: '7d'
-        }
-      )
-
-    const hashedRefreshToken =
-      hashToken(refreshToken)
-
-    await this.repository.createSession({
+    const identity = newSessionIdentity(this.now().getTime())
+    const refreshToken = mintRefresh({
       userId: user.id,
-      refreshToken: hashedRefreshToken,
-      expiresAt:
-        new Date(
-          Date.now() +
-          7 * 24 * 60 * 60 * 1000
-        )
+      sid: identity.sid,
+      jti: identity.jti,
+      issuedAt: identity.issuedAt,
+      expiresAt: identity.expiresAt,
+      keyId: signingKeyId,
     })
-
+    await this.repository.createSession({
+      id: identity.sid,
+      userId: user.id,
+      refreshToken: hashToken(refreshToken),
+      currentJti: identity.jti,
+      currentIssuedAt: new Date(identity.issuedAt * 1000),
+      expiresAt: new Date(identity.expiresAt * 1000),
+      signingKeyId,
+    })
     return {
-      accessToken,
+      accessToken: mintAccess(user, identity.sid),
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      }
+      expiresAt: new Date(identity.expiresAt * 1000),
+      user: publicUser(user),
     }
   }
 
   async refresh(refreshToken: string) {
-
-    if (!refreshToken) {
-      throw new Error('Invalid refresh token')
-    }
-
-    let payload: {
-      userId: string
-    }
-
+    let claims: ReturnType<typeof verifyRefresh>
     try {
-
-      payload = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET!
-      ) as {
-        userId: string
-      }
-
+      claims = verifyRefresh(refreshToken)
     } catch {
-
       throw new Error('Invalid refresh token')
     }
-
-    const hashedRefreshToken =
-      hashToken(refreshToken)
-
-    const session =
-      await this.repository.findSessionByToken(
-        hashedRefreshToken
+    const suppliedHash = hashToken(refreshToken)
+    const result = await this.repository.withLockedSession(claims.sid, async (session, tx) => {
+      if (
+        !session ||
+        !session.currentJti ||
+        !session.currentIssuedAt ||
+        session.userId !== claims.userId ||
+        session.revokedAt ||
+        session.expiresAt <= this.now()
       )
+        return null
 
-    if (!session) {
-      throw new Error('Session expired')
-    }
+      const now = this.now()
+      if (session.refreshToken === suppliedHash) {
+        if (now.getTime() - session.currentIssuedAt.getTime() < graceSeconds * 1000)
+          return { session, token: refreshFromSession(session) }
 
-    const user =
-      await this.repository.findById(payload.userId)
-
-    if (!user) {
-      throw new Error('Invalid refresh token')
-    }
-
-    const accessToken =
-      jwt.sign(
-        {
-          userId: user.id,
-          email: user.email,
-        },
-        process.env.JWT_ACCESS_SECRET!,
-        {
-          expiresIn: '15m'
-        }
-      )
-
-    const newRefreshToken =
-      jwt.sign(
-        {
-          userId: user.id,
-        },
-        process.env.JWT_REFRESH_SECRET!,
-        {
-          expiresIn: '7d'
-        }
-      )
-
-    const hashedNewRefreshToken =
-      hashToken(newRefreshToken)
-
-    await this.repository.deleteSessionByToken(
-      hashedRefreshToken
-    )
-
-    await this.repository.createSession({
-      userId: user.id,
-      refreshToken:
-      hashedNewRefreshToken,
-      expiresAt:
-        new Date(
-          Date.now() +
-          7 * 24 * 60 * 60 * 1000
-        )
-    })
-
-    return {
-      accessToken,
-      refreshToken: newRefreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        const jti = randomUUID()
+        const issuedAt = Math.floor(now.getTime() / 1000)
+        const token = mintRefresh({
+          userId: session.userId,
+          sid: session.id,
+          jti,
+          issuedAt,
+          expiresAt: Math.floor(session.expiresAt.getTime() / 1000),
+          keyId: signingKeyId,
+        })
+        const updated = await tx.session.update({
+          where: { id: session.id },
+          data: {
+            refreshToken: hashToken(token),
+            currentJti: jti,
+            currentIssuedAt: new Date(issuedAt * 1000),
+            previousRefreshHash: suppliedHash,
+            previousValidUntil: new Date(now.getTime() + graceSeconds * 1000),
+            rotationVersion: { increment: 1 },
+            signingKeyId,
+          },
+          include: { user: true },
+        })
+        return { session: updated, token }
       }
+
+      if (
+        session.previousRefreshHash === suppliedHash &&
+        session.previousValidUntil &&
+        session.previousValidUntil >= now
+      )
+        return { session, token: refreshFromSession(session) }
+
+      // A signed, old token for this session outside grace is a replay.
+      await tx.session.update({
+        where: { id: session.id },
+        data: { revokedAt: now, previousRefreshHash: null, previousValidUntil: null },
+      })
+      return null
+    })
+    if (!result) throw new Error('Session expired')
+    return {
+      accessToken: mintAccess(result.session.user, result.session.id),
+      refreshToken: result.token,
+      expiresAt: result.session.expiresAt,
+      user: publicUser(result.session.user),
     }
   }
 
   async me(userId: string) {
     const user = await this.repository.findById(userId)
-
-    if (!user) {
-      throw new Error('Unauthorized')
-    }
-
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    }
+    if (!user) throw new Error('Unauthorized')
+    return publicUser(user)
   }
 
-  async logout(refreshToken: string) {
-    const hashedRefreshToken =
-      hashToken(refreshToken)
-
-    await this.repository.deleteSessionByToken(
-      hashedRefreshToken
-    )
+  async logout(refreshToken?: string, accessToken?: string) {
+    let identity: { sid: string; userId: string } | undefined
+    try {
+      if (refreshToken) identity = verifyRefresh(refreshToken)
+    } catch {
+      // A valid access cookie can still revoke the session.
+    }
+    if (!identity) {
+      try {
+        if (accessToken) identity = verifyAccess(accessToken)
+      } catch {
+        return
+      }
+    }
+    if (identity) await this.repository.revokeSession(identity.sid, identity.userId)
   }
 }

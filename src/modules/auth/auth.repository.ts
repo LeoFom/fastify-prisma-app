@@ -1,65 +1,57 @@
-import {prisma} from "../../config/prisma";
+import type { Prisma } from '@prisma/client'
+import { prisma } from '../../config/prisma'
 
 export class AuthRepository {
-
-  async findByEmail(email: string) {
-    return prisma.user.findUnique({
-      where: { email }
-    })
+  findByEmail(email: string) {
+    return prisma.user.findUnique({ where: { email } })
   }
 
-  async findById(id: string) {
-    return prisma.user.findUnique({
-      where: { id }
-    })
+  findById(id: string) {
+    return prisma.user.findUnique({ where: { id } })
   }
 
-  async createUser(data: {
-    email: string
-    passwordHash: string
-  }) {
-
+  // Nested create is one database transaction. A profile failure rolls back the user.
+  createUserWithProfile(data: { email: string; passwordHash: string }) {
     return prisma.user.create({
-      data: {
-        email: data.email,
-        passwordHash: data.passwordHash,
-        role: 'Customer',
-      }
+      data: { ...data, role: 'Customer', profile: { create: {} } },
     })
   }
 
-  async createSession(data: {
+  createSession(data: {
+    id: string
     userId: string
     refreshToken: string
-    userAgent?: string
-    ipAddress?: string
+    currentJti: string
+    currentIssuedAt: Date
     expiresAt: Date
+    signingKeyId: string
   }) {
+    return prisma.session.create({ data })
+  }
 
-    return prisma.session.create({
-      data
+  findSessionById(id: string) {
+    return prisma.session.findUnique({ where: { id }, include: { user: true } })
+  }
+
+  // The lock serializes refresh across API instances and browser tabs.
+  withLockedSession<T>(
+    sid: string,
+    callback: (
+      session: Awaited<ReturnType<AuthRepository['findSessionById']>>,
+      tx: Prisma.TransactionClient,
+    ) => Promise<T>,
+  ) {
+    return prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM sessions WHERE id = ${sid}::uuid FOR UPDATE`
+      const session = await tx.session.findUnique({ where: { id: sid }, include: { user: true } })
+      return callback(session, tx)
     })
   }
 
-  // Expects hashToken(rawCookie), never the raw refresh JWT.
-  async findSessionByToken(
-    hashedRefreshToken: string
-  ) {
-    return prisma.session.findUnique({
-      where: {
-        refreshToken: hashedRefreshToken
-      }
-    })
-  }
-
-  // Expects hashToken(rawCookie), never the raw refresh JWT.
-  async deleteSessionByToken(
-    hashedRefreshToken: string
-  ) {
-    return prisma.session.deleteMany({
-      where: {
-        refreshToken: hashedRefreshToken
-      }
+  async revokeSession(sid: string, userId: string) {
+    await prisma.session.updateMany({
+      where: { id: sid, userId, revokedAt: null },
+      data: { revokedAt: new Date(), previousRefreshHash: null, previousValidUntil: null },
     })
   }
 }
