@@ -16,6 +16,8 @@
     "db:validate": "prisma validate",
     "db:deploy": "prisma migrate deploy",
     "format:check": "node scripts/check-format.mjs",
+    "contract:generate": "node scripts/run-contract-generator.cjs",
+    "contract:check": "node scripts/run-contract-generator.cjs --check",
     "test:tooling": "node --test tests/tooling-format.test.cjs",
     "lint": "eslint . --max-warnings=0"
   },

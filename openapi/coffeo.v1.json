@@ -1,0 +1,2093 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Coffeo API contract",
+    "version": "1.0.0",
+    "description": "C1.1 contract. Cart, checkout, and admin writes are reserved and return 501."
+  },
+  "servers": [{ "url": "/v1" }],
+  "x-contract-source-sha256": "a2dabc1f0445d65f1f0c0509bb0a8dc1f27d6677f725bd2c6509e1c2bb65cb1a",
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": { "type": "apiKey", "in": "cookie", "name": "accessToken" }
+    },
+    "schemas": {
+      "ApiError": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "fieldErrors": {
+                "type": "object",
+                "propertyNames": { "type": "string" },
+                "additionalProperties": { "type": "array", "items": { "type": "string" } }
+              },
+              "requestId": { "type": "string" }
+            },
+            "required": ["code", "message", "fieldErrors", "requestId"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["error"],
+        "additionalProperties": false
+      },
+      "CartDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "revision": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "unitPriceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+                "product": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "slug": { "type": "string" },
+                        "sku": { "type": ["string", "null"] },
+                        "name": { "type": "string" },
+                        "description": { "type": ["string", "null"] },
+                        "imageUrl": { "type": ["string", "null"] },
+                        "category": {
+                          "type": "string",
+                          "enum": ["Coffee", "Equipment", "Merchandise"]
+                        },
+                        "priceMinor": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+                        "memberDiscountPercent": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+                        "stockQuantity": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "isActive": { "type": "boolean" },
+                        "coffeeDetails": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "coffeeType": {
+                                  "type": "string",
+                                  "enum": ["Beans", "Ground", "Drip", "Capsules"]
+                                },
+                                "roast": {
+                                  "anyOf": [
+                                    { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "originCountry": { "type": ["string", "null"] },
+                                "region": { "type": ["string", "null"] },
+                                "farm": { "type": ["string", "null"] },
+                                "processingStation": { "type": ["string", "null"] },
+                                "variety": { "type": ["string", "null"] },
+                                "altitudeMin": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "altitudeMax": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "processingMethod": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "Washed",
+                                        "Natural",
+                                        "Honey",
+                                        "Anaerobic",
+                                        "SemiWashed"
+                                      ]
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "scaScore": {
+                                  "anyOf": [
+                                    { "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "arabicaPercent": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "robustaPercent": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "acidity": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "sweetness": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "bitterness": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "body": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "caffeineLevel": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "weightGrams": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "roastDate": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                },
+                                "flavorNotes": { "type": "array", "items": { "type": "string" } },
+                                "brewingMethods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "Espresso",
+                                      "Filter",
+                                      "V60",
+                                      "Aeropress",
+                                      "Chemex",
+                                      "Moka",
+                                      "Turkish",
+                                      "FrenchPress"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "coffeeType",
+                                "roast",
+                                "originCountry",
+                                "region",
+                                "farm",
+                                "processingStation",
+                                "variety",
+                                "altitudeMin",
+                                "altitudeMax",
+                                "processingMethod",
+                                "scaScore",
+                                "arabicaPercent",
+                                "robustaPercent",
+                                "acidity",
+                                "sweetness",
+                                "bitterness",
+                                "body",
+                                "caffeineLevel",
+                                "weightGrams",
+                                "roastDate",
+                                "flavorNotes",
+                                "brewingMethods"
+                              ],
+                              "additionalProperties": false
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "slug",
+                        "sku",
+                        "name",
+                        "description",
+                        "imageUrl",
+                        "category",
+                        "priceMinor",
+                        "currency",
+                        "memberDiscountPercent",
+                        "stockQuantity",
+                        "isActive",
+                        "coffeeDetails",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false
+                    },
+                    { "type": "null" }
+                  ]
+                }
+              },
+              "required": ["id", "productId", "quantity", "unitPriceMinor", "currency", "product"],
+              "additionalProperties": false
+            }
+          },
+          "subtotalMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+        },
+        "required": ["id", "revision", "currency", "items", "subtotalMinor"],
+        "additionalProperties": false
+      },
+      "CartItemDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "quantity": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+          "unitPriceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "product": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "slug": { "type": "string" },
+                  "sku": { "type": ["string", "null"] },
+                  "name": { "type": "string" },
+                  "description": { "type": ["string", "null"] },
+                  "imageUrl": { "type": ["string", "null"] },
+                  "category": { "type": "string", "enum": ["Coffee", "Equipment", "Merchandise"] },
+                  "priceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                  "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+                  "memberDiscountPercent": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+                  "stockQuantity": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                  "isActive": { "type": "boolean" },
+                  "coffeeDetails": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "coffeeType": {
+                            "type": "string",
+                            "enum": ["Beans", "Ground", "Drip", "Capsules"]
+                          },
+                          "roast": {
+                            "anyOf": [
+                              { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+                              { "type": "null" }
+                            ]
+                          },
+                          "originCountry": { "type": ["string", "null"] },
+                          "region": { "type": ["string", "null"] },
+                          "farm": { "type": ["string", "null"] },
+                          "processingStation": { "type": ["string", "null"] },
+                          "variety": { "type": ["string", "null"] },
+                          "altitudeMin": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "altitudeMax": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "processingMethod": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": ["Washed", "Natural", "Honey", "Anaerobic", "SemiWashed"]
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "scaScore": {
+                            "anyOf": [
+                              { "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" },
+                              { "type": "null" }
+                            ]
+                          },
+                          "arabicaPercent": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "robustaPercent": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "acidity": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "sweetness": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "bitterness": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "body": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "caffeineLevel": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "weightGrams": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "roastDate": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "flavorNotes": { "type": "array", "items": { "type": "string" } },
+                          "brewingMethods": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "Espresso",
+                                "Filter",
+                                "V60",
+                                "Aeropress",
+                                "Chemex",
+                                "Moka",
+                                "Turkish",
+                                "FrenchPress"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "coffeeType",
+                          "roast",
+                          "originCountry",
+                          "region",
+                          "farm",
+                          "processingStation",
+                          "variety",
+                          "altitudeMin",
+                          "altitudeMax",
+                          "processingMethod",
+                          "scaScore",
+                          "arabicaPercent",
+                          "robustaPercent",
+                          "acidity",
+                          "sweetness",
+                          "bitterness",
+                          "body",
+                          "caffeineLevel",
+                          "weightGrams",
+                          "roastDate",
+                          "flavorNotes",
+                          "brewingMethods"
+                        ],
+                        "additionalProperties": false
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "slug",
+                  "sku",
+                  "name",
+                  "description",
+                  "imageUrl",
+                  "category",
+                  "priceMinor",
+                  "currency",
+                  "memberDiscountPercent",
+                  "stockQuantity",
+                  "isActive",
+                  "coffeeDetails",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          }
+        },
+        "required": ["id", "productId", "quantity", "unitPriceMinor", "currency", "product"],
+        "additionalProperties": false
+      },
+      "CoffeeDetailsDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "coffeeType": { "type": "string", "enum": ["Beans", "Ground", "Drip", "Capsules"] },
+          "roast": {
+            "anyOf": [{ "type": "string", "enum": ["Light", "Medium", "Dark"] }, { "type": "null" }]
+          },
+          "originCountry": { "type": ["string", "null"] },
+          "region": { "type": ["string", "null"] },
+          "farm": { "type": ["string", "null"] },
+          "processingStation": { "type": ["string", "null"] },
+          "variety": { "type": ["string", "null"] },
+          "altitudeMin": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "altitudeMax": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "processingMethod": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["Washed", "Natural", "Honey", "Anaerobic", "SemiWashed"]
+              },
+              { "type": "null" }
+            ]
+          },
+          "scaScore": {
+            "anyOf": [{ "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" }, { "type": "null" }]
+          },
+          "arabicaPercent": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "robustaPercent": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "acidity": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "sweetness": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "bitterness": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "body": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "caffeineLevel": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "weightGrams": {
+            "anyOf": [
+              { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+              { "type": "null" }
+            ]
+          },
+          "roastDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              { "type": "null" }
+            ]
+          },
+          "flavorNotes": { "type": "array", "items": { "type": "string" } },
+          "brewingMethods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Espresso",
+                "Filter",
+                "V60",
+                "Aeropress",
+                "Chemex",
+                "Moka",
+                "Turkish",
+                "FrenchPress"
+              ]
+            }
+          }
+        },
+        "required": [
+          "coffeeType",
+          "roast",
+          "originCountry",
+          "region",
+          "farm",
+          "processingStation",
+          "variety",
+          "altitudeMin",
+          "altitudeMax",
+          "processingMethod",
+          "scaScore",
+          "arabicaPercent",
+          "robustaPercent",
+          "acidity",
+          "sweetness",
+          "bitterness",
+          "body",
+          "caffeineLevel",
+          "weightGrams",
+          "roastDate",
+          "flavorNotes",
+          "brewingMethods"
+        ],
+        "additionalProperties": false
+      },
+      "OrderDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNumber": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Paid",
+              "Processing",
+              "Shipped",
+              "Delivered",
+              "Cancelled",
+              "Refunded"
+            ]
+          },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "subtotalMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "discountMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "shippingMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "totalMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    { "type": "null" }
+                  ]
+                },
+                "productName": { "type": "string" },
+                "productSlug": { "type": "string" },
+                "quantity": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "unitPriceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+              },
+              "required": [
+                "id",
+                "productId",
+                "productName",
+                "productSlug",
+                "quantity",
+                "unitPriceMinor",
+                "currency"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "placedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "id",
+          "orderNumber",
+          "status",
+          "currency",
+          "subtotalMinor",
+          "discountMinor",
+          "shippingMinor",
+          "totalMinor",
+          "items",
+          "placedAt"
+        ],
+        "additionalProperties": false
+      },
+      "OrderItemDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              { "type": "null" }
+            ]
+          },
+          "productName": { "type": "string" },
+          "productSlug": { "type": "string" },
+          "quantity": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+          "unitPriceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+        },
+        "required": [
+          "id",
+          "productId",
+          "productName",
+          "productSlug",
+          "quantity",
+          "unitPriceMinor",
+          "currency"
+        ],
+        "additionalProperties": false
+      },
+      "Pagination": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "number": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+          "size": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+          "total": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+        },
+        "required": ["number", "size", "total"],
+        "additionalProperties": false
+      },
+      "ProductDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "slug": { "type": "string" },
+          "sku": { "type": ["string", "null"] },
+          "name": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "imageUrl": { "type": ["string", "null"] },
+          "category": { "type": "string", "enum": ["Coffee", "Equipment", "Merchandise"] },
+          "priceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "memberDiscountPercent": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+          "stockQuantity": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "isActive": { "type": "boolean" },
+          "coffeeDetails": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "coffeeType": {
+                    "type": "string",
+                    "enum": ["Beans", "Ground", "Drip", "Capsules"]
+                  },
+                  "roast": {
+                    "anyOf": [
+                      { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+                      { "type": "null" }
+                    ]
+                  },
+                  "originCountry": { "type": ["string", "null"] },
+                  "region": { "type": ["string", "null"] },
+                  "farm": { "type": ["string", "null"] },
+                  "processingStation": { "type": ["string", "null"] },
+                  "variety": { "type": ["string", "null"] },
+                  "altitudeMin": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "altitudeMax": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "processingMethod": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["Washed", "Natural", "Honey", "Anaerobic", "SemiWashed"]
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "scaScore": {
+                    "anyOf": [
+                      { "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" },
+                      { "type": "null" }
+                    ]
+                  },
+                  "arabicaPercent": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "robustaPercent": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "acidity": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "sweetness": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "bitterness": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "caffeineLevel": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "weightGrams": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "roastDate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "flavorNotes": { "type": "array", "items": { "type": "string" } },
+                  "brewingMethods": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "Espresso",
+                        "Filter",
+                        "V60",
+                        "Aeropress",
+                        "Chemex",
+                        "Moka",
+                        "Turkish",
+                        "FrenchPress"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "coffeeType",
+                  "roast",
+                  "originCountry",
+                  "region",
+                  "farm",
+                  "processingStation",
+                  "variety",
+                  "altitudeMin",
+                  "altitudeMax",
+                  "processingMethod",
+                  "scaScore",
+                  "arabicaPercent",
+                  "robustaPercent",
+                  "acidity",
+                  "sweetness",
+                  "bitterness",
+                  "body",
+                  "caffeineLevel",
+                  "weightGrams",
+                  "roastDate",
+                  "flavorNotes",
+                  "brewingMethods"
+                ],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "sku",
+          "name",
+          "description",
+          "imageUrl",
+          "category",
+          "priceMinor",
+          "currency",
+          "memberDiscountPercent",
+          "stockQuantity",
+          "isActive",
+          "coffeeDetails",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "ProductResponse": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "slug": { "type": "string" },
+              "sku": { "type": ["string", "null"] },
+              "name": { "type": "string" },
+              "description": { "type": ["string", "null"] },
+              "imageUrl": { "type": ["string", "null"] },
+              "category": { "type": "string", "enum": ["Coffee", "Equipment", "Merchandise"] },
+              "priceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+              "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+              "memberDiscountPercent": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+              "stockQuantity": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+              "isActive": { "type": "boolean" },
+              "coffeeDetails": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "coffeeType": {
+                        "type": "string",
+                        "enum": ["Beans", "Ground", "Drip", "Capsules"]
+                      },
+                      "roast": {
+                        "anyOf": [
+                          { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+                          { "type": "null" }
+                        ]
+                      },
+                      "originCountry": { "type": ["string", "null"] },
+                      "region": { "type": ["string", "null"] },
+                      "farm": { "type": ["string", "null"] },
+                      "processingStation": { "type": ["string", "null"] },
+                      "variety": { "type": ["string", "null"] },
+                      "altitudeMin": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "altitudeMax": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "processingMethod": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": ["Washed", "Natural", "Honey", "Anaerobic", "SemiWashed"]
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "scaScore": {
+                        "anyOf": [
+                          { "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" },
+                          { "type": "null" }
+                        ]
+                      },
+                      "arabicaPercent": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "robustaPercent": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "acidity": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "sweetness": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "bitterness": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "body": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "caffeineLevel": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "weightGrams": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "roastDate": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "flavorNotes": { "type": "array", "items": { "type": "string" } },
+                      "brewingMethods": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Espresso",
+                            "Filter",
+                            "V60",
+                            "Aeropress",
+                            "Chemex",
+                            "Moka",
+                            "Turkish",
+                            "FrenchPress"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "coffeeType",
+                      "roast",
+                      "originCountry",
+                      "region",
+                      "farm",
+                      "processingStation",
+                      "variety",
+                      "altitudeMin",
+                      "altitudeMax",
+                      "processingMethod",
+                      "scaScore",
+                      "arabicaPercent",
+                      "robustaPercent",
+                      "acidity",
+                      "sweetness",
+                      "bitterness",
+                      "body",
+                      "caffeineLevel",
+                      "weightGrams",
+                      "roastDate",
+                      "flavorNotes",
+                      "brewingMethods"
+                    ],
+                    "additionalProperties": false
+                  },
+                  { "type": "null" }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "id",
+              "slug",
+              "sku",
+              "name",
+              "description",
+              "imageUrl",
+              "category",
+              "priceMinor",
+              "currency",
+              "memberDiscountPercent",
+              "stockQuantity",
+              "isActive",
+              "coffeeDetails",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "ProductsResponse": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "slug": { "type": "string" },
+                "sku": { "type": ["string", "null"] },
+                "name": { "type": "string" },
+                "description": { "type": ["string", "null"] },
+                "imageUrl": { "type": ["string", "null"] },
+                "category": { "type": "string", "enum": ["Coffee", "Equipment", "Merchandise"] },
+                "priceMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+                "memberDiscountPercent": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+                "stockQuantity": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "isActive": { "type": "boolean" },
+                "coffeeDetails": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "coffeeType": {
+                          "type": "string",
+                          "enum": ["Beans", "Ground", "Drip", "Capsules"]
+                        },
+                        "roast": {
+                          "anyOf": [
+                            { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+                            { "type": "null" }
+                          ]
+                        },
+                        "originCountry": { "type": ["string", "null"] },
+                        "region": { "type": ["string", "null"] },
+                        "farm": { "type": ["string", "null"] },
+                        "processingStation": { "type": ["string", "null"] },
+                        "variety": { "type": ["string", "null"] },
+                        "altitudeMin": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "altitudeMax": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "processingMethod": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": ["Washed", "Natural", "Honey", "Anaerobic", "SemiWashed"]
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "scaScore": {
+                          "anyOf": [
+                            { "type": "string", "pattern": "^\\d{1,2}\\.\\d{2}$" },
+                            { "type": "null" }
+                          ]
+                        },
+                        "arabicaPercent": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "robustaPercent": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "acidity": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "sweetness": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "bitterness": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "body": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "caffeineLevel": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "weightGrams": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "roastDate": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "flavorNotes": { "type": "array", "items": { "type": "string" } },
+                        "brewingMethods": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "Espresso",
+                              "Filter",
+                              "V60",
+                              "Aeropress",
+                              "Chemex",
+                              "Moka",
+                              "Turkish",
+                              "FrenchPress"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "coffeeType",
+                        "roast",
+                        "originCountry",
+                        "region",
+                        "farm",
+                        "processingStation",
+                        "variety",
+                        "altitudeMin",
+                        "altitudeMax",
+                        "processingMethod",
+                        "scaScore",
+                        "arabicaPercent",
+                        "robustaPercent",
+                        "acidity",
+                        "sweetness",
+                        "bitterness",
+                        "body",
+                        "caffeineLevel",
+                        "weightGrams",
+                        "roastDate",
+                        "flavorNotes",
+                        "brewingMethods"
+                      ],
+                      "additionalProperties": false
+                    },
+                    { "type": "null" }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              },
+              "required": [
+                "id",
+                "slug",
+                "sku",
+                "name",
+                "description",
+                "imageUrl",
+                "category",
+                "priceMinor",
+                "currency",
+                "memberDiscountPercent",
+                "stockQuantity",
+                "isActive",
+                "coffeeDetails",
+                "createdAt",
+                "updatedAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "page": {
+            "type": "object",
+            "properties": {
+              "number": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+              "size": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+              "total": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+            },
+            "required": ["number", "size", "total"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["data", "page"],
+        "additionalProperties": false
+      },
+      "ProfileDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "firstName": { "type": ["string", "null"] },
+          "lastName": { "type": ["string", "null"] },
+          "phone": { "type": ["string", "null"] },
+          "photoUrl": { "type": ["string", "null"] },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "userId",
+          "firstName",
+          "lastName",
+          "phone",
+          "photoUrl",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileResponse": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "firstName": { "type": ["string", "null"] },
+                  "lastName": { "type": ["string", "null"] },
+                  "phone": { "type": ["string", "null"] },
+                  "photoUrl": { "type": ["string", "null"] },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "firstName",
+                  "lastName",
+                  "phone",
+                  "photoUrl",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "ProfilePatch": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "anyOf": [{ "type": "string", "minLength": 2, "maxLength": 100 }, { "type": "null" }]
+          },
+          "lastName": {
+            "anyOf": [{ "type": "string", "minLength": 2, "maxLength": 100 }, { "type": "null" }]
+          },
+          "phone": {
+            "anyOf": [{ "type": "string", "minLength": 5, "maxLength": 20 }, { "type": "null" }]
+          },
+          "photoUrl": { "anyOf": [{ "type": "string", "format": "uri" }, { "type": "null" }] }
+        },
+        "additionalProperties": false
+      },
+      "QuoteDTO": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "cartId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "cartRevision": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "subtotalMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "discountMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "shippingMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "totalMinor": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "id",
+          "cartId",
+          "cartRevision",
+          "currency",
+          "subtotalMinor",
+          "discountMinor",
+          "shippingMinor",
+          "totalMinor",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "ProductQuery": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": { "type": "string", "maxLength": 100 },
+          "category": { "type": "string", "enum": ["Coffee", "Equipment", "Merchandise"] },
+          "roast": { "type": "string", "enum": ["Light", "Medium", "Dark"] },
+          "sort": {
+            "default": "newest",
+            "type": "string",
+            "enum": ["newest", "name", "price_asc", "price_desc"]
+          },
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pageSize": { "default": 20, "type": "integer", "minimum": 1, "maximum": 50 }
+        },
+        "required": ["sort", "page", "pageSize"],
+        "additionalProperties": false
+      },
+      "ReservedCartWrite": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "quantity": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 },
+          "expectedRevision": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+        },
+        "required": ["productId", "quantity", "expectedRevision"],
+        "additionalProperties": false
+      },
+      "ReservedCheckoutWrite": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "quoteId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "contact": {
+            "type": "object",
+            "properties": {
+              "firstName": { "type": "string", "minLength": 1 },
+              "lastName": { "type": "string", "minLength": 1 },
+              "phone": { "type": "string", "minLength": 5 }
+            },
+            "required": ["firstName", "lastName", "phone"],
+            "additionalProperties": false
+          },
+          "delivery": {
+            "type": "object",
+            "properties": {
+              "method": { "type": "string", "enum": ["np_warehouse", "np_postomat"] },
+              "cityRef": { "type": "string", "minLength": 1 },
+              "warehouseRef": { "type": "string", "minLength": 1 }
+            },
+            "required": ["method", "cityRef", "warehouseRef"],
+            "additionalProperties": false
+          },
+          "paymentMethod": { "type": "string", "const": "cash_on_delivery" }
+        },
+        "required": ["quoteId", "contact", "delivery", "paymentMethod"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "operationId": "listProducts",
+        "description": "Active catalog; stable pagination.",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "roast", "in": "query", "schema": { "type": "string" } },
+          { "name": "sort", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProductsResponse" } }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "500": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "operationId": "getProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProductResponse" } }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/products/slug/{slug}": {
+      "get": {
+        "operationId": "getProductBySlug",
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProductResponse" } }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/profile/me": {
+      "get": {
+        "operationId": "getProfile",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Profile or null",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProfileResponse" } }
+            }
+          },
+          "401": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchProfile",
+        "security": [{ "sessionCookie": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ProfilePatch" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated profile",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProfileResponse" } }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "401": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items": {
+      "post": {
+        "operationId": "reservedCartWrite",
+        "description": "Reserved for C3. Valid request returns 501.",
+        "security": [{ "sessionCookie": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReservedCartWrite" } }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "401": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "501": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "operationId": "reservedCheckoutWrite",
+        "description": "Reserved for C3. Valid request returns 501.",
+        "security": [{ "sessionCookie": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReservedCheckoutWrite" }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "401": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "501": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products": {
+      "post": {
+        "operationId": "reservedProductWrite",
+        "description": "Reserved for C2. Returns 501 for authenticated admin.",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "401": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "403": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          },
+          "501": {
+            "description": "Structured error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
