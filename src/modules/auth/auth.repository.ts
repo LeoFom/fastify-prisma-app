@@ -10,10 +10,18 @@ export class AuthRepository {
     return prisma.user.findUnique({ where: { id } })
   }
 
-  // Nested create is one database transaction. A profile failure rolls back the user.
-  createUserWithProfile(data: { email: string; passwordHash: string }) {
-    return prisma.user.create({
-      data: { ...data, role: 'Customer', profile: { create: {} } },
+  // The optional writer allows a synthetic profile failure to prove rollback in CI.
+  createUserWithProfile(
+    data: { email: string; passwordHash: string },
+    writeProfile: (tx: Prisma.TransactionClient, userId: string) => Promise<unknown> = (
+      tx,
+      userId,
+    ) => tx.profile.create({ data: { userId } }),
+  ) {
+    return prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({ data: { ...data, role: 'Customer' } })
+      await writeProfile(tx, user.id)
+      return user
     })
   }
 

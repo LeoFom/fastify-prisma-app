@@ -4,6 +4,7 @@ const test = require('node:test')
 const { buildApp } = require('../dist/app')
 const { prisma } = require('../dist/config/prisma')
 const { AuthService } = require('../dist/modules/auth/auth.service')
+const { AuthRepository } = require('../dist/modules/auth/auth.repository')
 const { verifyRefresh } = require('../dist/modules/auth/session-tokens')
 
 test('C1.3: unique logins, atomic refresh, grace, replay, logout and canonical email', async () => {
@@ -100,6 +101,24 @@ test('C1.3: unique logins, atomic refresh, grace, replay, logout and canonical e
   } finally {
     await prisma.user.deleteMany({ where: { email } })
     await app.close()
+    await prisma.$disconnect()
+  }
+})
+
+test('C1.3: profile failure rolls back a new account', async () => {
+  assert.equal(process.env.NODE_ENV, 'test', 'Only an isolated test database may be used')
+  const email = `rollback-${randomUUID()}@example.test`
+  const repository = new AuthRepository()
+  try {
+    await assert.rejects(
+      repository.createUserWithProfile({ email, passwordHash: 'synthetic-hash' }, async () => {
+        throw new Error('synthetic profile failure')
+      }),
+      /synthetic profile failure/,
+    )
+    assert.equal(await prisma.user.count({ where: { email } }), 0)
+  } finally {
+    await prisma.user.deleteMany({ where: { email } })
     await prisma.$disconnect()
   }
 })
